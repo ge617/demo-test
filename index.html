@@ -1,14 +1,207 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>my-vue-app</title>
-    <script type="module" crossorigin src="/assets/index-CGM4qKGM.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-CsUDhMuy.css">
-  </head>
-  <body>
-    <div id="app"></div>
-  </body>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>我们结婚啦 - 电子请柬</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Microsoft YaHei", sans-serif;
+    }
+
+    body {
+      background: #fdf6f8;
+      padding: 20px;
+      max-width: 600px;
+      margin: 0 auto;
+      color: #5d3a3a;
+    }
+
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.08);
+    }
+
+    h1 {
+      text-align: center;
+      color: #d43f57;
+      margin-bottom: 20px;
+      font-size: 24px;
+    }
+
+    .upload-box {
+      margin: 15px 0;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      color: #885151;
+    }
+
+    input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #eee;
+      border-radius: 8px;
+    }
+
+    .btn {
+      width: 100%;
+      background: #d43f57;
+      color: white;
+      border: none;
+      padding: 14px;
+      border-radius: 50px;
+      font-size: 16px;
+      margin: 20px 0;
+      cursor: pointer;
+    }
+    .btn:hover {
+      background: #b12f43;
+    }
+
+    /* 预览区域 */
+    #preview {
+      display: none;
+      margin-top: 30px;
+      position: relative;
+      overflow: hidden;
+      border-radius: 16px;
+    }
+
+    #previewImg {
+      width: 100%;
+      display: block;
+      border-radius: 16px;
+    }
+
+    /* 音乐图标 */
+    .music-icon {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 40px;
+      height: 40px;
+      background: rgba(255,255,255,0.9);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      animation: rotate 3s linear infinite;
+    }
+
+    @keyframes rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* 文字祝福语 */
+    .words {
+      position: absolute;
+      bottom: 60px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      color: white;
+      font-size: 22px;
+      text-shadow: 0 0 10px rgba(0,0,0,0.5);
+      padding: 0 20px;
+    }
+
+    .tips {
+      text-align: center;
+      margin-top: 10px;
+      color: #999;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>💖 我们结婚啦 💍</h1>
+
+  <!-- 上传图片 -->
+  <div class="upload-box">
+    <label>1. 上传请柬封面图片</label>
+    <input type="file" id="imgUpload" accept="image/*">
+  </div>
+
+  <!-- 上传音频 -->
+  <div class="upload-box">
+    <label>2. 上传背景音乐（MP3）</label>
+    <input type="file" id="audioUpload" accept="audio/*">
+  </div>
+
+  <!-- 生成按钮 -->
+  <button class="btn" onclick="createInvitation()">生成我的电子请柬</button>
+
+  <!-- 预览区域 -->
+  <div id="preview">
+    <img id="previewImg">
+    <div class="words">执子之手 · 与子偕老</div>
+    <div class="music-icon" onclick="toggleMusic()">🎵</div>
+    <audio id="audio" loop></audio>
+  </div>
+
+  <div class="tips">
+    生成后可截图/分享<br>
+    上传到 GitHub Pages 可直接在线访问
+  </div>
+</div>
+
+<script>
+  let imgFile, audioFile;
+  const audio = document.getElementById('audio');
+
+  // 监听图片上传
+  document.getElementById('imgUpload').addEventListener('change', function(e) {
+    imgFile = e.target.files[0];
+  });
+
+  // 监听音频上传
+  document.getElementById('audioUpload').addEventListener('change', function(e) {
+    audioFile = e.target.files[0];
+  });
+
+  // 生成请柬
+  function createInvitation() {
+    if (!imgFile) {
+      alert('请先上传图片');
+      return;
+    }
+
+    // 显示预览
+    document.getElementById('preview').style.display = 'block';
+
+    // 显示图片
+    const imgUrl = URL.createObjectURL(imgFile);
+    document.getElementById('previewImg').src = imgUrl;
+
+    // 设置音乐
+    if (audioFile) {
+      audio.src = URL.createObjectURL(audioFile);
+      audio.play().catch(err => {});
+    }
+  }
+
+  // 控制音乐播放/暂停
+  function toggleMusic() {
+    if (audio.paused) {
+      audio.play();
+    } else {
+      audio.pause();
+    }
+  }
+</script>
+
+</body>
 </html>
