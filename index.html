@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>首页</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #f5f5f5;
+    }
+
+    .navbar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 44px;
+      background-color: #009459;
+    }
+
+    .navbar-title {
+      font-size: 20px;
+      font-weight: bold;
+      color: #ffffff;
+    }
+
+    .content {
+      height: calc(100vh - 114px);
+      overflow-y: auto;
+    }
+
+    .search-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background-color: #fff;
+    }
+
+    .search-input {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      height: 40px;
+      background-color: #f5f5f5;
+      border-radius: 20px;
+      padding: 0 16px;
+    }
+
+    .search-icon {
+      width: 18px;
+      height: 18px;
+      color: #999;
+      margin-right: 8px;
+    }
+
+    .search-placeholder {
+      font-size: 17px;
+      color: #999;
+    }
+
+    .map-icon {
+      width: 20px;
+      height: 20px;
+      color: #fff;
+    }
+
+    .section {
+      padding: 0 10px;
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: bold;
+      color: #333;
+      padding: 12px 0;
+    }
+
+
+
+    .route-name {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 16px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .route-name-icon {
+      width: 20px;
+      height: 20px;
+      color: #009459;
+      flex-shrink: 0;
+    }
+
+    .route-endpoints {
+      font-size: 14px;
+      font-weight: normal;
+      color: #666;
+    }
+
+    .bus-list {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid #eee;
+    }
+
+    .bus-item {
+      display: flex;
+      align-items: center;
+      padding: 6px 0;
+    }
+
+    .bus-time {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 15px;
+      font-weight: bold;
+      color: #333;
+      width: 70px;
+    }
+
+    .bus-time-icon {
+      position: relative;
+      top: 1px;
+      width: 16px;
+      height: 16px;
+      color: #999;
+    }
+
+    .bus-info {
+      font-size: 14px;
+      color: #666;
+      flex: 1;
+    }
+
+    .bus-distance {
+      font-size: 13px;
+      color: #009459;
+      background-color: #e0f2e9;
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+
+    .station-card {
+      background-color: #fff;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 10px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .station-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .station-info {
+      display: flex;
+      align-items: center;
+    }
+
+    .station-icon {
+      width: 20px;
+      height: 20px;
+      margin-right: 8px;
+    }
+
+    .station-name {
+      font-size: 16px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .station-distance {
+      font-size: 14px;
+      color: #666;
+    }
+
+    /* ===== 关注路线 ===== */
+    .route-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 10px;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    }
+
+    .route-header {}
+
+    .route-header:active {
+      background: #f5f5f5;
+    }
+
+    .route-header-left {
+      display: flex;
+      gap: 10px;
+    }
+
+    .route-icon {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #009459;
+      border-radius: 6px;
+      flex-shrink: 0;
+    }
+
+    .route-icon svg {
+      width: 22px;
+      height: 22px;
+    }
+
+    .route-info {
+      flex: 1;
+    }
+
+    .route-name {
+      font-size: 18px;
+      font-weight: bold;
+      color: #333;
+      display: inline;
+    }
+
+    .route-direction {
+      font-size: 14px;
+      color: #999;
+      display: inline;
+    }
+
+    .route-direction {
+      font-size: 14px;
+      color: #999;
+      margin-top: 2px;
+    }
+
+    /* 车辆到站信息 */
+    .bus-arrival-cards {}
+
+    .bus-arrival-card {
+      padding-top: 5px;
+      display: flex;
+      column-gap: 8px;
+    }
+
+    .bus-arrival-card .arrival-station-name {
+      font-size: 16px;
+      color: #333;
+    }
+
+    .bus-arrival-card .arrival-station-name::before {
+      content: '到达 ';
+      font-size: 13px;
+      color: #999;
+    }
+
+    .bus-arrival-card .arrival-primary {
+      font-size: 16px;
+      color: #00A870;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .signal-icon {
+      display: flex;
+      align-items: flex-end;
+      gap: 1px;
+      height: 15px;
+    }
+
+    .signal-bar {
+      width: 4px;
+      background-color: #00A870;
+      border-radius: 1px;
+      animation: signal-pulse 1s ease-in-out infinite;
+    }
+
+    .signal-bar:nth-child(1) {
+      height: 40%;
+      animation-delay: 0s;
+    }
+
+    .signal-bar:nth-child(2) {
+      height: 70%;
+      animation-delay: 0.15s;
+    }
+
+    .signal-bar:nth-child(3) {
+      height: 100%;
+      animation-delay: 0.3s;
+    }
+
+    @keyframes signal-pulse {
+
+      0%,
+      100% {
+        opacity: 0.4;
+        transform: scaleY(0.8);
+      }
+
+      50% {
+        opacity: 1;
+        transform: scaleY(1);
+      }
+    }
+
+    /* 内层标签栏 */
+    .inner-tabs {
+      display: flex;
+      border-bottom: 1px solid #eee;
+    }
+
+    .inner-tab {
+      flex: 1;
+      text-align: center;
+      padding: 12px 0;
+      font-size: 14px;
+      color: #666;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .inner-tab.active {
+      color: #009459;
+      font-weight: 500;
+    }
+
+    .inner-tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 40px;
+      height: 2px;
+      background-color: #009459;
+      border-radius: 1px;
+    }
+
+    /* 内层标签内容 */
+    .inner-tab-content {
+      display: none;
+      padding: 12px 16px;
+    }
+
+    .inner-tab-content.active {
+      display: block;
+    }
+
+    /* 关注站点 */
+    .followed-station {
+      margin-bottom: 16px;
+    }
+
+    .followed-station:last-child {
+      margin-bottom: 0;
+    }
+
+    .followed-station-name {
+      font-size: 14px;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 8px;
+    }
+
+    .bus-arrival-item {
+      display: flex;
+      align-items: center;
+      padding: 8px 12px;
+      background-color: #f5f5f5;
+      border-radius: 8px;
+      margin-bottom: 6px;
+    }
+
+    .bus-arrival-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .bus-departure-time {
+      font-size: 14px;
+      font-weight: bold;
+      color: #333;
+      width: 80px;
+    }
+
+    .bus-remaining-time {
+      font-size: 14px;
+      color: #009459;
+      flex: 1;
+    }
+
+    .bus-remaining-stops {
+      font-size: 13px;
+      color: #666;
+      background-color: #e8f5ee;
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+
+    /* 经过站点 - 横向滚动 */
+    .route-stations-scroll {
+      display: flex;
+      overflow-x: auto;
+      gap: 12px;
+      padding-bottom: 8px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .route-stations-scroll::-webkit-scrollbar {
+      display: none;
+    }
+
+    .toggle-btn {
+      font-size: 14px;
+      color: #009459;
+      font-weight: 500;
+      flex-shrink: 0;
+      background-color: #e8f5ee;
+      padding: 4px 10px;
+      border-radius: 12px;
+    }
+
+    .route-station-item {
+      flex-shrink: 0;
+      text-align: center;
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      font-size: 15px;
+      color: #333;
+      background-color: #f5f5f5;
+      padding: 12px 6px;
+      border-radius: 8px;
+      position: relative;
+    }
+
+    .route-station-item .station-label {
+      margin-bottom: 5px;
+      font-size: 12px;
+      color: #fff;
+      background-color: #009459;
+      padding: 6px 4px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+
+    .route-station-item.current {
+      background-color: #e8f5ee;
+      color: #009459;
+    }
+
+    /* 时刻表内嵌样式 */
+    .embedded-timetable .time-section {
+      margin-bottom: 16px;
+    }
+
+    .embedded-timetable .time-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .embedded-timetable .time-section-title {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+
+    .embedded-timetable .time-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .embedded-timetable .time-tag {
+      font-size: 14px;
+      color: #333;
+      background-color: #f5f5f5;
+      padding: 4px 12px;
+      border-radius: 14px;
+    }
+
+    .tabbar {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      height: 70px;
+      background-color: #ffffff;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+    }
+
+    .tab-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #888;
+    }
+
+    .tab-item.active {
+      color: #009459;
+    }
+
+    .tab-icon {
+      width: 24px;
+      height: 24px;
+      margin-bottom: 4px;
+    }
+
+    .tab-text {
+      font-size: 12px;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- 顶部导航栏 -->
+  <div class="navbar">
+    <span class="navbar-title">首页</span>
+  </div>
+
+  <!-- 页面内容 -->
+  <div class="content">
+    <!-- 搜索栏 -->
+    <div class="search-bar">
+      <div class="search-input" onclick="location.href='search.html'">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+        <span class="search-placeholder">查线路、站点</span>
+      </div>
+    </div>
+
+
+
+    <!-- 关注路线 -->
+    <div class="section">
+      <div class="section-title">关注路线</div>
+
+      <!-- 第一级：公交路线 66号线 -->
+      <div class="route-card" onclick="location.href='line.html?lineName=' + encodeURIComponent('66号线')">
+        <div class="route-header">
+          <div class="route-header-left">
+            <div class="route-icon">
+              <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5919" width="22"
+                height="22" fill="#fff">
+                <path
+                  d="M835.5 165.9c-5.9-13.3-13.9-24.9-23.9-35-10-10-21.7-18-34.9-23.9-13.3-5.9-27.6-8.8-42.9-8.8H291.6c-15.3 0-29.6 3-42.9 8.8-13.3 5.9-24.9 13.9-34.9 23.9-10 10-18 21.7-23.9 35-5.9 13.3-8.8 27.6-8.8 42.9V707c0 15.3 0.1 29.6 0.4 42.9 0.3 13.3 1.9 24.9 4.9 34.9 2.9 10 8.3 18 15.9 23.9 7.7 5.9 18.9 8.8 33.6 8.8v54.9c0 15.3 5.5 28.5 16.4 39.4 10.9 10.9 24 16.4 39.4 16.4 15.3 0 28.3-5.5 38.9-16.4 10.6-10.9 15.9-24 15.9-39.4v-54.9H679v54.9c0 15.3 5.3 28.5 15.9 39.4 10.6 10.9 23.6 16.4 38.9 16.4 15.3 0 28.5-5.5 39.4-16.4 10.9-10.9 16.4-24 16.4-39.4v-54.9c15.3 0 26.8-2.9 34.5-8.8 7.7-5.9 13-13.9 15.9-23.9 2.9-10 4.4-21.8 4.4-35.4V208.8c0-15.3-3-29.6-8.9-42.9zM380.9 161c5.3-5.3 11.8-8 19.5-8H625c7.7 0 14.2 2.6 19.5 8 5.3 5.3 8 11.8 8 19.5 0 8.3-2.6 15-8 20.4-5.3 5.3-11.8 8-19.5 8H400.4c-7.7 0-14.2-2.7-19.5-8-5.3-5.3-8-12.1-8-20.4 0.1-7.7 2.7-14.1 8-19.5z m-34.9 542.9c-8 8-17.5 11.9-28.7 11.9-11.8 0-21.5-4-29.2-11.9-7.7-8-11.5-17.6-11.5-28.8s3.8-20.8 11.5-28.8 17.4-11.9 29.2-11.9c11.2 0 20.8 4 28.7 11.9 8 8 11.9 17.5 11.9 28.8s-4 20.8-11.9 28.8z m385.6-1.3c-7.4 7.7-16.4 11.5-27 11.5-11.2 0-20.5-3.8-27.9-11.5-7.4-7.7-11.1-16.8-11.1-27.4 0-10.6 3.7-19.8 11.1-27.4 7.4-7.7 16.7-11.5 27.9-11.5 10.6 0 19.6 3.8 27 11.5 7.4 7.7 11.1 16.8 11.1 27.4 0 10.6-3.7 19.7-11.1 27.4z m57.9-217.7H235.9V263.7h553.7v221.2z"
+                  p-id="5920" />
+              </svg>
+            </div>
+            <div class="route-info">
+              <div>
+                <div class="route-name">66号线</div>
+                <div class="route-direction">52号院 → 翰林楼</div>
+              </div>
+              <!-- 车辆到站信息 -->
+              <div class="bus-arrival-cards">
+                <div class="bus-arrival-card">
+                  <div class="arrival-station-name">52号院南门</div>
+                  <div class="arrival-primary">
+                    <span class="signal-icon">
+                      <span class="signal-bar"></span>
+                      <span class="signal-bar"></span>
+                      <span class="signal-bar"></span>
+                    </span>
+                    预计3分钟 · 4站
+                  </div>
+                </div>
+                <div class="bus-arrival-card">
+                  <div class="arrival-station-name">行政楼</div>
+                  <div class="arrival-primary">
+                    <span class="signal-icon">
+                      <span class="signal-bar"></span>
+                      <span class="signal-bar"></span>
+                      <span class="signal-bar"></span>
+                    </span>
+                    预计8分钟 · 4站
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 第二条公交路线 88号线 -->
+      <div class="route-card" onclick="location.href='line.html?lineName=' + encodeURIComponent('88号线')">
+        <div class="route-header">
+          <div class="route-header-left">
+            <div class="route-icon">
+              <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5919" width="22"
+                height="22" fill="#fff">
+                <path
+                  d="M835.5 165.9c-5.9-13.3-13.9-24.9-23.9-35-10-10-21.7-18-34.9-23.9-13.3-5.9-27.6-8.8-42.9-8.8H291.6c-15.3 0-29.6 3-42.9 8.8-13.3 5.9-24.9 13.9-34.9 23.9-10 10-18 21.7-23.9 35-5.9 13.3-8.8 27.6-8.8 42.9V707c0 15.3 0.1 29.6 0.4 42.9 0.3 13.3 1.9 24.9 4.9 34.9 2.9 10 8.3 18 15.9 23.9 7.7 5.9 18.9 8.8 33.6 8.8v54.9c0 15.3 5.5 28.5 16.4 39.4 10.9 10.9 24 16.4 39.4 16.4 15.3 0 28.3-5.5 38.9-16.4 10.6-10.9 15.9-24 15.9-39.4v-54.9H679v54.9c0 15.3 5.3 28.5 15.9 39.4 10.6 10.9 23.6 16.4 38.9 16.4 15.3 0 28.5-5.5 39.4-16.4 10.9-10.9 16.4-24 16.4-39.4v-54.9c15.3 0 26.8-2.9 34.5-8.8 7.7-5.9 13-13.9 15.9-23.9 2.9-10 4.4-21.8 4.4-35.4V208.8c0-15.3-3-29.6-8.9-42.9zM380.9 161c5.3-5.3 11.8-8 19.5-8H625c7.7 0 14.2 2.6 19.5 8 5.3 5.3 8 11.8 8 19.5 0 8.3-2.6 15-8 20.4-5.3 5.3-11.8 8-19.5 8H400.4c-7.7 0-14.2-2.7-19.5-8-5.3-5.3-8-12.1-8-20.4 0.1-7.7 2.7-14.1 8-19.5z m-34.9 542.9c-8 8-17.5 11.9-28.7 11.9-11.8 0-21.5-4-29.2-11.9-7.7-8-11.5-17.6-11.5-28.8s3.8-20.8 11.5-28.8 17.4-11.9 29.2-11.9c11.2 0 20.8 4 28.7 11.9 8 8 11.9 17.5 11.9 28.8s-4 20.8-11.9 28.8z m385.6-1.3c-7.4 7.7-16.4 11.5-27 11.5-11.2 0-20.5-3.8-27.9-11.5-7.4-7.7-11.1-16.8-11.1-27.4 0-10.6 3.7-19.8 11.1-27.4 7.4-7.7 16.7-11.5 27.9-11.5 10.6 0 19.6 3.8 27 11.5 7.4 7.7 11.1 16.8 11.1 27.4 0 10.6-3.7 19.7-11.1 27.4z m57.9-217.7H235.9V263.7h553.7v221.2z"
+                  p-id="5920" />
+              </svg>
+            </div>
+            <div>
+              <div class="route-info">
+                <div class="route-name">88号线</div>
+                <div class="route-direction">南区 → 北区</div>
+              </div>
+
+              <div class="bus-arrival-cards">
+                <div class="bus-arrival-card">
+                  <div class="arrival-station-name">52号院南门</div>
+                  <div class="arrival-primary">
+                    <span class="signal-icon">
+                      <span class="signal-bar"></span>
+                      <span class="signal-bar"></span>
+                      <span class="signal-bar"></span>
+                    </span>
+                    预计3分钟 · 4站
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 温馨提示 -->
+    <div
+      style="background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%); margin: 0px 10px; padding: 8px 12px; border-radius: 10px; border-left: 4px solid #ffc107;">
+      <div style="font-size: 14px; color: #856404; line-height: 1.5;">车辆到站时间均为预估时间，仅供参考。</div>
+    </div>
+
+    <!-- 附近站点 -->
+    <div class="section" id="nearby-stations">
+      <div class="section-title">附近站点</div>
+
+      <div class="station-card" onclick="location.href='station.html?stationName=' + encodeURIComponent(this.querySelector('.station-name').textContent)">
+        <div class="station-header">
+          <div class="station-info">
+            <svg class="station-icon" viewBox="0 0 24 24" fill="#009459">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+              <circle cx="12" cy="10" r="3" fill="#fff" />
+            </svg>
+            <span class="station-name">52号院南门</span>
+          </div>
+          <span class="station-distance">0.3km</span>
+        </div>
+      </div>
+
+      <div class="station-card" onclick="location.href='station.html?stationName=' + encodeURIComponent(this.querySelector('.station-name').textContent)">
+        <div class="station-header">
+          <div class="station-info">
+            <svg class="station-icon" viewBox="0 0 24 24" fill="#009459">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+              <circle cx="12" cy="10" r="3" fill="#fff" />
+            </svg>
+            <span class="station-name">南北大道</span>
+          </div>
+          <span class="station-distance">0.5km</span>
+        </div>
+      </div>
+
+      <div class="station-card" onclick="location.href='station.html?stationName=' + encodeURIComponent(this.querySelector('.station-name').textContent)">
+        <div class="station-header">
+          <div class="station-info">
+            <svg class="station-icon" viewBox="0 0 24 24" fill="#009459">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+              <circle cx="12" cy="10" r="3" fill="#fff" />
+            </svg>
+            <span class="station-name">综合楼</span>
+          </div>
+          <span class="station-distance">0.8km</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 底部导航栏 -->
+  <div class="tabbar">
+    <div class="tab-item active">
+      <svg class="tab-icon" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+        <polyline points="9 22 9 12 15 12 15 22" fill="none" stroke="#fff" stroke-width="2" />
+      </svg>
+      <span class="tab-text">首页</span>
+    </div>
+    <div class="tab-item" onclick="location.href='timetable.html'">
+      <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10" />
+        <polyline points="12 6 12 12 16 14" />
+      </svg>
+      <span class="tab-text">时刻表</span>
+    </div>
+    <div class="tab-item" onclick="location.href='notice.html'">
+      <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+        <polyline points="14 3 14 8 19 8" />
+        <line x1="8" y1="13" x2="16" y2="13" />
+        <line x1="8" y1="17" x2="14" y2="17" />
+      </svg>
+      <span class="tab-text">通知公告</span>
+    </div>
+  </div>
+
+  <script>
+    // 获取定位
+    navigator.geolocation.getCurrentPosition((position) => {
+      console.log('定位信息');
+      console.log(position);
+    });
+  </script>
+</body>
+
+</html>

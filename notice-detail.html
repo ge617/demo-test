@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>公告详情</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #f5f5f5;
+    }
+
+    .navbar {
+      display: flex;
+      align-items: center;
+      height: 44px;
+      background-color: #009459;
+      padding: 0 16px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+    }
+
+    .back-btn {
+      width: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+    }
+
+    .back-icon {
+      width: 24px;
+      height: 24px;
+      color: #ffffff;
+      cursor: pointer;
+    }
+
+    .navbar-title {
+      flex: 1;
+      text-align: center;
+      font-size: 20px;
+      font-weight: bold;
+      color: #ffffff;
+      margin-right: 40px;
+    }
+
+    .detail-page {
+      min-height: 100vh;
+      padding-top: 44px;
+    }
+
+    .detail-header {
+      background-color: #009459;
+      color: #fff;
+      padding: 18px 16px 20px;
+    }
+
+    .detail-title {
+      font-size: 24px;
+      font-weight: bold;
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+
+    .detail-time {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .detail-content {
+      padding: 16px;
+    }
+
+    .detail-card {
+      background-color: #fff;
+      border-radius: 14px;
+      padding: 18px 16px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .detail-card h2 {
+      font-size: 18px;
+      color: #333;
+      margin-bottom: 12px;
+    }
+
+    .detail-card h3 {
+      font-size: 16px;
+      color: #333;
+      margin: 18px 0 8px;
+    }
+
+    .detail-card p {
+      font-size: 15px;
+      color: #555;
+      line-height: 1.8;
+      margin-bottom: 10px;
+    }
+
+    .detail-card ul {
+      padding-left: 20px;
+      margin-bottom: 10px;
+    }
+
+    .detail-card li {
+      font-size: 15px;
+      color: #555;
+      line-height: 1.8;
+      margin-bottom: 6px;
+    }
+
+    .detail-card strong {
+      color: #222;
+    }
+
+    .notice-highlight {
+      background-color: #f0fff7;
+      border-left: 4px solid #009459;
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin: 12px 0;
+      font-size: 14px;
+      color: #2f5f45;
+      line-height: 1.7;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="detail-page">
+    <div class="navbar">
+      <div class="back-btn">
+        <svg class="back-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="15 18 9 12 15 6" />
+        </svg>
+      </div>
+      <span class="navbar-title">公告详情</span>
+    </div>
+
+    <div class="detail-header">
+      <div class="detail-title">关于本周末校内公交发车时间临时调整的通知</div>
+      <div class="detail-time">公告时间：2026-04-16 09:30</div>
+    </div>
+
+    <div class="detail-content">
+      <div class="detail-card">
+        <h2>公告详情</h2>
+        <p>因本周末校内道路维护施工，部分公交线路运行时段将进行临时调整。请有乘车需求的师生提前规划出行时间，避免耽误行程。</p>
+
+        <div class="notice-highlight">
+          <strong>温馨提示：</strong> 本次调整仅适用于周六、周日，工作日发车安排不受影响。若遇极端天气，平台将另行发布补充公告。
+        </div>
+
+        <h3>一、调整时间</h3>
+        <p><strong>2026 年 4 月 18 日至 2026 年 4 月 19 日</strong>，每日首班车与晚高峰部分班次将按照临时安排执行。</p>
+
+        <h3>二、调整内容</h3>
+        <ul>
+          <li>1号线、2号线首班车发车时间统一顺延 15 分钟；</li>
+          <li>晚高峰 17:00 - 19:00 时段，新增 2 班接驳车辆；</li>
+          <li>北门站点施工期间临时取消停靠，乘客请前往东侧临时站点候车。</li>
+        </ul>
+
+        <h3>三、出行建议</h3>
+        <p>建议乘客在出发前查看最新线路动态，尽量提前 5 - 10 分钟到站候车。如需前往施工区域周边，请优先选择临近备用站点乘车。</p>
+
+        <p>感谢大家对校内公交运行保障工作的理解与支持。</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.querySelector('.back-btn').addEventListener('click', function () {
+      history.back();
+    });
+  </script>
+</body>
+
+</html>

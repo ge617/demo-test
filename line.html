@@ -1,0 +1,1507 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>线路详情</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #f5f5f5;
+    }
+
+    .navbar {
+      display: flex;
+      align-items: center;
+      height: 44px;
+      background-color: #009459;
+      padding: 0 16px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+    }
+
+    .back-btn {
+      width: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+    }
+
+    .back-icon {
+      width: 24px;
+      height: 24px;
+      color: #ffffff;
+      cursor: pointer;
+    }
+
+    .navbar-title {
+      flex: 1;
+      text-align: center;
+      font-size: 20px;
+      font-weight: bold;
+      color: #ffffff;
+      margin-right: 40px;
+    }
+
+    .line-detail {
+      position: relative;
+      min-height: 100vh;
+      padding-top: 44px;
+      padding-bottom: 20px;
+    }
+
+    .header {
+      background-color: #009459;
+      color: #fff;
+      padding: 12px 14px 14px;
+    }
+
+    .route-main {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .route-title {
+      font-size: 24px;
+      font-weight: bold;
+      color: #fff;
+    }
+
+    .route-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .action-btn {
+      padding: 8px 14px;
+      border-radius: 20px;
+      font-size: 14px;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.2s ease;
+      font-weight: 500;
+    }
+
+    .action-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .action-btn:active {
+      transform: translateY(0);
+    }
+
+    .action-btn.primary {
+      background-color: #fff;
+      color: #009459;
+      font-weight: bold;
+      box-shadow: 0 2px 8px rgba(0, 148, 89, 0.2);
+    }
+
+    .action-btn.secondary {
+      background-color: rgba(255, 255, 255, 0.25);
+      color: #fff;
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .action-btn.secondary:hover {
+      background-color: rgba(255, 255, 255, 0.35);
+      box-shadow: 0 2px 8px rgba(255, 255, 255, 0.15);
+    }
+
+    /* 时刻表按钮 - 黄色高亮，醒目突出 */
+    .timetable-btn {
+      background: linear-gradient(135deg, #ffed9e 0%, #ffb82a 100%);
+      color: #5a3800;
+      font-weight: 700;
+      font-size: 14px;
+      padding: 8px 16px;
+      border-radius: 20px;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.2s ease;
+    }
+
+    .route-actions .action-btn.secondary {
+      padding: 8px 14px;
+      font-size: 14px;
+    }
+
+    /* 关注按钮 - 已关注状态 */
+    .follow-line-btn.followed {
+      background-color: rgba(255, 255, 255, 0.45);
+      color: #fff;
+      font-weight: 600;
+    }
+
+
+    .route-info-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .route-direction {
+      font-size: 15px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.95);
+    }
+
+    /* 反向按钮 - 纯图标圆形，轻量不抢眼 */
+    .reverse-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: rgba(255, 255, 255, 0.2);
+      border: 1.5px solid rgba(255, 255, 255, 0.45);
+      color: #fff;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .reverse-btn:hover {
+      background-color: rgba(255, 255, 255, 0.32);
+      transform: rotate(180deg);
+    }
+
+    .reverse-btn:active {
+      transform: rotate(180deg) scale(0.92);
+    }
+
+    .route-time {
+      margin-left: auto;
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.9);
+      white-space: nowrap;
+    }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 200;
+    }
+
+    .modal-overlay.show {
+      display: block;
+    }
+
+    .modal {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 60vh;
+      background-color: #fff;
+      border-radius: 16px 16px 0 0;
+      z-index: 201;
+      display: none;
+      flex-direction: column;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      padding: 12px 16px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .modal-close {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .modal-close svg {
+      width: 20px;
+      height: 20px;
+      color: #666;
+    }
+
+    .modal-title {
+      flex: 1;
+      text-align: center;
+      font-size: 16px;
+      font-weight: bold;
+      color: #333;
+      margin-right: 32px;
+    }
+
+    .modal-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+    }
+
+    /* 时刻表弹窗 - 星期选择器 */
+    .modal-week-selector {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 0 14px;
+    }
+
+    .modal-week-options {
+      display: flex;
+      gap: 6px;
+      flex: 1;
+    }
+
+    .modal-week-option {
+      flex: 1;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      color: #666;
+      background-color: #f5f5f5;
+      border-radius: 15px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+    }
+
+    .modal-week-option.active {
+      color: #009459;
+      background-color: #e8f5e9;
+      border-color: #009459;
+    }
+
+    .modal-no-schedule {
+      text-align: center;
+      padding: 40px 20px;
+      color: #999;
+      font-size: 14px;
+    }
+
+    .time-section {
+      margin-bottom: 16px;
+    }
+
+    .time-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .time-section-title {
+      font-size: 16px;
+      color: #666;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+
+    .time-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .time-tag {
+      font-size: 16px;
+      color: #333;
+      background-color: #f5f5f5;
+      padding: 4px 12px;
+      border-radius: 14px;
+    }
+
+    .route-schematic {
+      position: relative;
+      overflow: hidden;
+      aspect-ratio: 1 / 0.9;
+      background: linear-gradient(180deg, #e8f5e9 0%, #f5f5f5 100%);
+      padding-bottom: 32px;
+    }
+
+    .route-schematic-hint {
+      position: absolute;
+      left: 50%;
+      bottom: 10px;
+      transform: translateX(-50%);
+      padding: 6px 14px;
+      border-radius: 999px;
+      background-color: rgba(255, 255, 255, 0.88);
+      color: #4f6b5d;
+      font-size: 15px;
+      line-height: 1;
+      white-space: nowrap;
+      box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
+      pointer-events: none;
+    }
+
+    .route-svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .route-path {
+      fill: none;
+      stroke: #009459;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .station-group {
+      cursor: pointer;
+    }
+
+    .station-circle {
+      fill: #fff;
+      stroke: #009459;
+      stroke-width: 1.5;
+      transition: all 0.2s;
+    }
+
+    .station-group.selected .station-circle {
+      fill: #009459;
+    }
+
+    .station-group.start .station-circle,
+    .station-group.end .station-circle {
+      fill: #009459;
+      stroke: none;
+    }
+
+    .station-group.followed .station-circle {
+      fill: #FFB800;
+      stroke: #009459;
+      stroke-width: 1;
+    }
+
+    .station-group.followed.selected .station-circle {
+      fill: #FFB800;
+    }
+
+    .station-text {
+      font-size: 4px;
+      font-weight: bold;
+      fill: #fff;
+      text-anchor: middle;
+      dominant-baseline: middle;
+      pointer-events: none;
+    }
+
+    .station-name {
+      font-size: 4px;
+      fill: #333;
+      text-anchor: middle;
+      pointer-events: none;
+    }
+
+    .station-group.selected .station-name {
+      font-size: 6px;
+      font-weight: bold;
+      fill: #333;
+    }
+
+    .station-star {
+      fill: #fff;
+      stroke: #009459;
+      stroke-width: 1;
+    }
+
+    .station-group.followed .station-star {
+      fill: #FFB800;
+    }
+
+    .bus-icon {
+      fill: #009459;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .bus-icon.highlighted path:first-child {
+      fill: #FF6B6B;
+    }
+
+    /* 时间标签样式 */
+    .time-label {
+      font-size: 3.5px;
+      fill: #E74A48;
+      font-weight: bold;
+      text-anchor: middle;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .time-label.visible {
+      opacity: 1;
+    }
+
+    /* ===== 关注站点汇总面板 ===== */
+    .favorites-panel {
+      display: none;
+      padding: 0 0 16px;
+      background-color: #f5f5f5;
+    }
+
+    .favorites-panel.visible {
+      display: block;
+    }
+
+    .favorites-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px 10px;
+    }
+
+    .favorites-panel-title {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 16px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .favorites-panel-title svg {
+      width: 16px;
+      height: 16px;
+      fill: #FFB800;
+    }
+
+    .favorites-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 0 12px;
+    }
+
+    .fav-station-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 14px 14px 12px;
+      box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .fav-station-card::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background-color: #FFB800;
+      border-radius: 4px 0 0 4px;
+    }
+
+    /* 选中站点卡片：绿色左边框 */
+    .fav-station-card.selected-card::before {
+      background-color: #009459;
+    }
+
+    .fav-station-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .fav-station-name {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 15px;
+      font-weight: 600;
+      color: #222;
+    }
+
+    .current-icon {
+      display: inline-flex;
+      align-items: center;
+      font-size: 10px;
+      font-weight: 600;
+      color: #009459;
+      background: #e0f2e9;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .fav-star-icon {
+      width: 14px;
+      height: 14px;
+      fill: #FFB800;
+      flex-shrink: 0;
+    }
+
+    .fav-follow-btn {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 14px;
+      line-height: 28px;
+      padding: 0px 12px;
+      border-radius: 14px;
+      border: 1px solid #009459;
+      background-color: #fff;
+      color: #009459;
+      cursor: pointer;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    .fav-follow-btn:hover {
+      background-color: #e0f2e9;
+    }
+
+    .fav-follow-btn.followed {
+      background-color: #009459;
+      color: #fff;
+    }
+
+    .fav-follow-btn svg {
+      width: 14px;
+      height: 14px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+    }
+
+    .fav-buses-row {
+      display: flex;
+      flex-direction: column;
+      row-gap: 8px;
+    }
+
+    .fav-bus-item {
+      flex-shrink: 0;
+      display: flex;
+      align-items: stretch;
+      gap: 0;
+      background-color: #f5f5f5;
+      border-radius: 10px;
+      padding: 9px 10px;
+      min-width: 240px;
+    }
+
+    .fav-bus-item.first {
+      background-color: #eaf6f0;
+    }
+
+    /* 三列等宽，中间加分隔线 */
+    .fav-bus-cell {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      padding: 0 8px;
+    }
+
+    .fav-bus-cell+.fav-bus-cell {
+      border-left: 1px solid rgba(0, 0, 0, 0.08);
+    }
+
+    .fav-bus-item.first .fav-bus-cell+.fav-bus-cell {
+      border-left-color: rgba(0, 148, 89, 0.15);
+    }
+
+    .fav-bus-cell-label {
+      font-size: 13px;
+      color: #aaa;
+      font-weight: 400;
+      line-height: 1;
+    }
+
+    .fav-bus-cell-value {
+      font-size: 16px;
+      font-weight: 600;
+      color: #333;
+      line-height: 1.3;
+      white-space: nowrap;
+    }
+
+    .fav-bus-item.first .fav-bus-cell-value {
+      color: #007a48;
+    }
+
+    .fav-no-bus {
+      font-size: 13px;
+      color: #bbb;
+      padding: 4px 0;
+    }
+
+    .fav-empty {
+      text-align: center;
+      padding: 20px;
+      color: #bbb;
+      font-size: 14px;
+    }
+
+    #selectedStationCard {
+      padding: 12px 12px 0 12px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="line-detail">
+    <!-- 顶部导航栏 -->
+    <div class="navbar">
+      <div class="back-btn">
+        <svg class="back-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="15 18 9 12 15 6" />
+        </svg>
+      </div>
+      <span class="navbar-title">线路详情</span>
+    </div>
+
+    <!-- 公交站点示意图 -->
+    <div class="route-schematic">
+      <svg class="route-svg" id="routeSvg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
+        <path class="route-path" id="routePath" />
+        <g class="bus-icon" id="busIcon1" style="display: none;">
+          <g transform="translate(-7, -6) scale(0.012)">
+            <path
+              d="M512 1023.38118C229.611741 1023.38118 0.633554 794.373525 0.633554 512 0.633554 229.626475 229.611741 0.61882 512 0.61882c282.373525 0 511.38118 229.007655 511.38118 511.38118-0.014734 282.373525-229.007655 511.38118-511.38118 511.38118z"
+              fill="#D7D7D8" p-id="5736"></path>
+            <path
+              d="M230.731511 314.139626h590.708029c44.171971 0 80.299281 36.142043 80.29928 80.29928V610.716547H150.417496V394.438906c0-44.171971 36.127309-80.299281 80.314015-80.29928z"
+              fill="#E74A48" p-id="5737"></path>
+            <path
+              d="M160.230216 443.79718v-49.358274c0-13.569842 3.344576-26.388259 9.223367-37.615424h126.533985c5.33364 0 9.694849 4.464345 9.694849 9.901122v67.289324c0 5.436777-4.375942 9.901122-9.694849 9.901122h-134.372374c-0.471482-0.014734-0.92823-0.044201-1.384978-0.11787zM341.39718 356.823482h104.109122c5.33364 0 9.694849 4.464345 9.694849 9.901122v67.289324c0 5.436777-4.375942 9.901122-9.694849 9.901122h-104.109122c-5.318906 0-9.694849-4.449612-9.694849-9.901122V366.724604c0.014734-5.451511 4.375942-9.901122 9.694849-9.901122zM613.191827 356.823482h104.109123c5.33364 0 9.694849 4.464345 9.694849 9.901122v67.289324c0 5.436777-4.375942 9.901122-9.694849 9.901122h-104.109123c-5.318906 0-9.694849-4.449612-9.694849-9.901122V366.724604c0.014734-5.451511 4.375942-9.901122 9.694849-9.901122zM762.710561 356.823482h104.109122c5.348374 0 9.694849 4.464345 9.694849 9.901122v67.289324c0 5.436777-4.375942 9.901122-9.694849 9.901122h-104.109122c-5.318906 0-9.694849-4.449612-9.694849-9.901122V366.724604c0-5.451511 4.361209-9.901122 9.694849-9.901122z"
+              fill="#FFFFFF" p-id="5738"></path>
+            <path
+              d="M148.045353 607.180432h748.124086c9.179165 0 16.708144 7.528978 16.708144 16.708144v14.321266c0 9.164432-7.543712 16.708144-16.708144 16.708144H148.045353c-9.164432 0-16.708144-7.514245-16.708144-16.708144v-14.321266c0-9.179165 7.514245-16.708144 16.708144-16.708144z"
+              fill="#A42124" p-id="5739"></path>
+            <path
+              d="M489.118388 356.617209h81.713727c5.981928 0 10.85882 4.375942 10.85882 9.665381v216.528115c0 5.304173-4.921094 9.665381-10.85882 9.665381h-81.713727c-5.95246 0-10.85882-4.346475-10.85882-9.665381V366.28259c0-5.318906 4.891626-9.665381 10.85882-9.665381z"
+              fill="#F7CF6F" p-id="5740"></path>
+            <path
+              d="M145.570072 607.696115h752.750504c3.28564 0 5.967194-2.578417 5.967194-5.716719v-7.617382c0-3.138302-2.681554-5.716719-5.967194-5.716719H145.570072c-3.270906 0-5.967194 2.578417-5.967194 5.716719v7.617382c0 3.123568 2.696288 5.716719 5.967194 5.716719z"
+              fill="#A42124" p-id="5741"></path>
+            <path
+              d="M588.660029 583.901007h60.364431l-23.515165-55.91482 34.904403 55.91482h60.51177l-23.500432-55.91482 34.904403 55.91482h60.51177l-23.515166-55.91482 34.904403 55.91482h60.51177l-23.500432-55.91482 34.742331 55.679079 26.181986-20.332662-20.391597 31.780835H581.278388l-47.22187-113.420892 54.603511 102.20846z"
+              fill="#A42124" p-id="5742"></path>
+            <path
+              d="M269.260432 709.860374c-39.147741 0-70.899108-31.751367-70.899108-70.913842 0-39.147741 31.751367-70.899108 70.899108-70.899108 39.162475 0 70.913842 31.751367 70.913841 70.899108-0.014734 39.162475-31.766101 70.913842-70.913841 70.913842z"
+              fill="#181818" p-id="5743"></path>
+            <path
+              d="M269.260432 686.639885c-26.31459 0-47.663885-21.349295-47.663885-47.678619 0-26.31459 21.349295-47.663885 47.663885-47.663885 26.329324 0 47.678619 21.349295 47.678618 47.663885 0 26.329324-21.349295 47.678619-47.678618 47.678619z"
+              fill="#FFFFFF" p-id="5744"></path>
+            <path
+              d="M269.260432 679.184576c-22.203856 0-40.208576-18.004719-40.208576-40.22331 0-22.203856 18.004719-40.208576 40.208576-40.208575 22.21859 0 40.223309 18.004719 40.223309 40.208575 0 22.21859-18.019453 40.223309-40.223309 40.22331z"
+              fill="#E74A48" p-id="5745"></path>
+            <path
+              d="M269.260432 658.439367c-10.755683 0-19.463367-8.722417-19.463367-19.478101 0-10.74095 8.707683-19.463367 19.463367-19.463367 10.755683 0 19.478101 8.722417 19.4781 19.463367 0 10.755683-8.722417 19.478101-19.4781 19.478101zM747.696806 709.860374c-39.147741 0-70.899108-31.751367-70.899108-70.913842 0-39.147741 31.751367-70.899108 70.899108-70.899108 39.162475 0 70.913842 31.751367 70.913841 70.899108-0.014734 39.162475-31.766101 70.913842-70.913841 70.913842z"
+              fill="#181818" p-id="5746"></path>
+            <path
+              d="M747.696806 686.639885c-26.31459 0-47.663885-21.349295-47.663885-47.678619 0-26.31459 21.349295-47.663885 47.663885-47.663885 26.329324 0 47.678619 21.349295 47.678618 47.663885 0 26.329324-21.349295 47.678619-47.678618 47.678619z"
+              fill="#FFFFFF" p-id="5747"></path>
+            <path
+              d="M747.696806 679.184576c-22.203856 0-40.223309-18.004719-40.22331-40.22331 0-22.203856 18.019453-40.208576 40.22331-40.208575 22.21859 0 40.223309 18.004719 40.223309 40.208575 0 22.21859-18.004719 40.223309-40.223309 40.22331z"
+              fill="#E74A48" p-id="5748"></path>
+            <path
+              d="M747.696806 658.439367c-10.74095 0-19.463367-8.722417-19.463367-19.478101 0-10.74095 8.722417-19.463367 19.463367-19.463367 10.755683 0 19.478101 8.722417 19.4781 19.463367 0 10.755683-8.722417 19.478101-19.4781 19.478101z"
+              fill="#181818" p-id="5749"></path>
+            <path
+              d="M160.613295 527.529439c0.338878 1.23764-0.383079 2.504748-1.620719 2.843626-1.23764 0.338878-2.504748-0.383079-2.85836-1.62072l-10.534676-38.086906c-2.932029-10.593612-5.746187-16.870216-9.856921-20.229525-3.992863-3.270906-9.591712-3.963396-18.137324-3.432979-1.281842 0.073669-2.372144-0.898763-2.460547-2.180604-0.073669-1.281842 0.898763-2.386878 2.180605-2.460547 9.73905-0.604086 16.266129 0.30941 21.349294 4.464345 4.980029 4.066532 8.206734 11.035626 11.403972 22.586936l10.534676 38.116374z"
+              fill="#F7CF6F" p-id="5750"></path>
+            <path
+              d="M117.472691 443.325698c4.611683 0 8.339338 9.576978 8.339338 21.393496s-3.742388 21.378763-8.339338 21.378763c-4.611683 0-8.339338-9.576978-8.339338-21.378763-0.014734-11.816518 3.727655-21.393496 8.339338-21.393496z"
+              fill="#F7CF6F" p-id="5751"></path>
+            <path
+              d="M167.081439 500.345554h11.35977c3.123568 0 5.687252 2.563683 5.687251 5.687252v26.918676c0 3.123568-2.563683 5.687252-5.687251 5.687252h-11.35977c-3.123568 0-5.687252-2.563683-5.687252-5.687252v-26.918676c0-3.138302 2.563683-5.687252 5.687252-5.687252z"
+              fill="#323333" p-id="5752"></path>
+            <path d="M901.341007 551.442417c18.048921 4.022331 18.048921 33.946705 0 37.969036v-37.969036z"
+              fill="#F7CF6F" p-id="5753"></path>
+            <path
+              d="M491.446331 363.556835l76.969439 0.103136c2.254273 0 4.081266 1.782791 4.081266 3.97813l0.103137 68.689036c0 2.195338-1.812259 3.963396-4.066533 3.963395l-76.969439-0.103136c-2.254273 0-4.081266-1.782791-4.081266-3.97813l-0.103136-68.689036c0-2.195338 1.812259-3.963396 4.066532-3.963395z"
+              fill="#E09753" p-id="5754"></path>
+            <path
+              d="M497.634532 459.753899h-5.893525c-1.620719 0-2.946763-1.326043-2.946762-2.946762s1.326043-2.946763 2.946762-2.946763h5.893525c1.620719 0 2.946763 1.326043 2.946763 2.946763s-1.326043 2.946763-2.946763 2.946762z"
+              fill="#E74A48" p-id="5755"></path>
+          </g>
+        </g>
+        <g class="bus-icon" id="busIcon2" style="display: none;">
+          <g transform="translate(-7, -6) scale(0.012)">
+            <path
+              d="M512 1023.38118C229.611741 1023.38118 0.633554 794.373525 0.633554 512 0.633554 229.626475 229.611741 0.61882 512 0.61882c282.373525 0 511.38118 229.007655 511.38118 511.38118-0.014734 282.373525-229.007655 511.38118-511.38118 511.38118z"
+              fill="#D7D7D8" p-id="5736"></path>
+            <path
+              d="M230.731511 314.139626h590.708029c44.171971 0 80.299281 36.142043 80.29928 80.29928V610.716547H150.417496V394.438906c0-44.171971 36.127309-80.299281 80.314015-80.29928z"
+              fill="#E74A48" p-id="5737"></path>
+            <path
+              d="M160.230216 443.79718v-49.358274c0-13.569842 3.344576-26.388259 9.223367-37.615424h126.533985c5.33364 0 9.694849 4.464345 9.694849 9.901122v67.289324c0 5.436777-4.375942 9.901122-9.694849 9.901122h-134.372374c-0.471482-0.014734-0.92823-0.044201-1.384978-0.11787zM341.39718 356.823482h104.109122c5.33364 0 9.694849 4.464345 9.694849 9.901122v67.289324c0 5.436777-4.375942 9.901122-9.694849 9.901122h-104.109122c-5.318906 0-9.694849-4.449612-9.694849-9.901122V366.724604c0.014734-5.451511 4.375942-9.901122 9.694849-9.901122zM613.191827 356.823482h104.109123c5.33364 0 9.694849 4.464345 9.694849 9.901122v67.289324c0 5.436777-4.375942 9.901122-9.694849 9.901122h-104.109123c-5.318906 0-9.694849-4.449612-9.694849-9.901122V366.724604c0.014734-5.451511 4.375942-9.901122 9.694849-9.901122zM762.710561 356.823482h104.109122c5.348374 0 9.694849 4.464345 9.694849 9.901122v67.289324c0 5.436777-4.375942 9.901122-9.694849 9.901122h-104.109122c-5.318906 0-9.694849-4.449612-9.694849-9.901122V366.724604c0-5.451511 4.361209-9.901122 9.694849-9.901122z"
+              fill="#FFFFFF" p-id="5738"></path>
+            <path
+              d="M148.045353 607.180432h748.124086c9.179165 0 16.708144 7.528978 16.708144 16.708144v14.321266c0 9.164432-7.543712 16.708144-16.708144 16.708144H148.045353c-9.164432 0-16.708144-7.514245-16.708144-16.708144v-14.321266c0-9.179165 7.514245-16.708144 16.708144-16.708144z"
+              fill="#A42124" p-id="5739"></path>
+            <path
+              d="M489.118388 356.617209h81.713727c5.981928 0 10.85882 4.375942 10.85882 9.665381v216.528115c0 5.304173-4.921094 9.665381-10.85882 9.665381h-81.713727c-5.95246 0-10.85882-4.346475-10.85882-9.665381V366.28259c0-5.318906 4.891626-9.665381 10.85882-9.665381z"
+              fill="#F7CF6F" p-id="5740"></path>
+            <path
+              d="M145.570072 607.696115h752.750504c3.28564 0 5.967194-2.578417 5.967194-5.716719v-7.617382c0-3.138302-2.681554-5.716719-5.967194-5.716719H145.570072c-3.270906 0-5.967194 2.578417-5.967194 5.716719v7.617382c0 3.123568 2.696288 5.716719 5.967194 5.716719z"
+              fill="#A42124" p-id="5741"></path>
+            <path
+              d="M588.660029 583.901007h60.364431l-23.515165-55.91482 34.904403 55.91482h60.51177l-23.500432-55.91482 34.904403 55.91482h60.51177l-23.515166-55.91482 34.904403 55.91482h60.51177l-23.500432-55.91482 34.742331 55.679079 26.181986-20.332662-20.391597 31.780835H581.278388l-47.22187-113.420892 54.603511 102.20846z"
+              fill="#A42124" p-id="5742"></path>
+            <path
+              d="M269.260432 709.860374c-39.147741 0-70.899108-31.751367-70.899108-70.913842 0-39.147741 31.751367-70.899108 70.899108-70.899108 39.162475 0 70.913842 31.751367 70.913841 70.899108-0.014734 39.162475-31.766101 70.913842-70.913841 70.913842z"
+              fill="#181818" p-id="5743"></path>
+            <path
+              d="M269.260432 686.639885c-26.31459 0-47.663885-21.349295-47.663885-47.678619 0-26.31459 21.349295-47.663885 47.663885-47.663885 26.329324 0 47.678619 21.349295 47.678618 47.663885 0 26.329324-21.349295 47.678619-47.678618 47.678619z"
+              fill="#FFFFFF" p-id="5744"></path>
+            <path
+              d="M269.260432 679.184576c-22.203856 0-40.208576-18.004719-40.208576-40.22331 0-22.203856 18.004719-40.208576 40.208576-40.208575 22.21859 0 40.223309 18.004719 40.223309 40.208575 0 22.21859-18.019453 40.223309-40.223309 40.22331z"
+              fill="#E74A48" p-id="5745"></path>
+            <path
+              d="M269.260432 658.439367c-10.755683 0-19.463367-8.722417-19.463367-19.478101 0-10.74095 8.707683-19.463367 19.463367-19.463367 10.755683 0 19.478101 8.722417 19.4781 19.463367 0 10.755683-8.722417 19.478101-19.4781 19.478101zM747.696806 709.860374c-39.147741 0-70.899108-31.751367-70.899108-70.913842 0-39.147741 31.751367-70.899108 70.899108-70.899108 39.162475 0 70.913842 31.751367 70.913841 70.899108-0.014734 39.162475-31.766101 70.913842-70.913841 70.913842z"
+              fill="#181818" p-id="5746"></path>
+            <path
+              d="M747.696806 686.639885c-26.31459 0-47.663885-21.349295-47.663885-47.678619 0-26.31459 21.349295-47.663885 47.663885-47.663885 26.329324 0 47.678619 21.349295 47.678618 47.663885 0 26.329324-21.349295 47.678619-47.678618 47.678619z"
+              fill="#FFFFFF" p-id="5747"></path>
+            <path
+              d="M747.696806 679.184576c-22.203856 0-40.223309-18.004719-40.22331-40.22331 0-22.203856 18.019453-40.208576 40.22331-40.208575 22.21859 0 40.223309 18.004719 40.223309 40.208575 0 22.21859-18.004719 40.223309-40.223309 40.22331z"
+              fill="#E74A48" p-id="5748"></path>
+            <path
+              d="M747.696806 658.439367c-10.74095 0-19.463367-8.722417-19.463367-19.478101 0-10.74095 8.722417-19.463367 19.463367-19.463367 10.755683 0 19.478101 8.722417 19.4781 19.463367 0 10.755683-8.722417 19.478101-19.4781 19.478101z"
+              fill="#181818" p-id="5749"></path>
+            <path
+              d="M160.613295 527.529439c0.338878 1.23764-0.383079 2.504748-1.620719 2.843626-1.23764 0.338878-2.504748-0.383079-2.85836-1.62072l-10.534676-38.086906c-2.932029-10.593612-5.746187-16.870216-9.856921-20.229525-3.992863-3.270906-9.591712-3.963396-18.137324-3.432979-1.281842 0.073669-2.372144-0.898763-2.460547-2.180604-0.073669-1.281842 0.898763-2.386878 2.180605-2.460547 9.73905-0.604086 16.266129 0.30941 21.349294 4.464345 4.980029 4.066532 8.206734 11.035626 11.403972 22.586936l10.534676 38.116374z"
+              fill="#F7CF6F" p-id="5750"></path>
+            <path
+              d="M117.472691 443.325698c4.611683 0 8.339338 9.576978 8.339338 21.393496s-3.742388 21.378763-8.339338 21.378763c-4.611683 0-8.339338-9.576978-8.339338-21.378763-0.014734-11.816518 3.727655-21.393496 8.339338-21.393496z"
+              fill="#F7CF6F" p-id="5751"></path>
+            <path
+              d="M167.081439 500.345554h11.35977c3.123568 0 5.687252 2.563683 5.687251 5.687252v26.918676c0 3.123568-2.563683 5.687252-5.687251 5.687252h-11.35977c-3.123568 0-5.687252-2.563683-5.687252-5.687252v-26.918676c0-3.138302 2.563683-5.687252 5.687252-5.687252z"
+              fill="#323333" p-id="5752"></path>
+            <path d="M901.341007 551.442417c18.048921 4.022331 18.048921 33.946705 0 37.969036v-37.969036z"
+              fill="#F7CF6F" p-id="5753"></path>
+            <path
+              d="M491.446331 363.556835l76.969439 0.103136c2.254273 0 4.081266 1.782791 4.081266 3.97813l0.103137 68.689036c0 2.195338-1.812259 3.963396-4.066533 3.963395l-76.969439-0.103136c-2.254273 0-4.081266-1.782791-4.081266-3.97813l-0.103136-68.689036c0-2.195338 1.812259-3.963396 4.066532-3.963395z"
+              fill="#E09753" p-id="5754"></path>
+            <path
+              d="M497.634532 459.753899h-5.893525c-1.620719 0-2.946763-1.326043-2.946762-2.946762s1.326043-2.946763 2.946762-2.946763h5.893525c1.620719 0 2.946763 1.326043 2.946763 2.946763s-1.326043 2.946763-2.946763 2.946762z"
+              fill="#E74A48" p-id="5755"></path>
+          </g>
+        </g>
+      </svg>
+      <div class="route-schematic-hint">点击站点或公交图标，查看详细信息</div>
+    </div>
+
+    <!-- 顶部信息栏 -->
+    <div class="header">
+      <div class="route-main">
+        <div class="route-title">
+          66号线
+        </div>
+        <div class="route-actions">
+          <button class="action-btn secondary follow-line-btn" id="followLineBtn">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            关注
+          </button>
+          <button class="timetable-btn" id="timetableBtn">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5">
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
+            </svg>
+            时刻表
+          </button>
+        </div>
+      </div>
+      <div class="route-info-row">
+        <div class="route-direction">
+          52号院 → 翰林楼
+        </div>
+        <button class="reverse-btn" title="反向">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2">
+            <polyline points="17 1 21 5 17 9" />
+            <path d="M3 11V9a4 4 0 0 1 4-4h14" />
+            <polyline points="7 23 3 19 7 15" />
+            <path d="M21 13v2a4 4 0 0 1-4 4H3" />
+          </svg>
+        </button>
+        <div class="route-time">首班 07:30 · 末班 18:00</div>
+      </div>
+    </div>
+
+    <!-- 关注站点汇总面板（始终展示） -->
+    <div class="favorites-panel visible" id="favoritesPanel">
+      <!-- 选中站点卡片（由 JS 动态插入，无独立头部） -->
+      <!-- 关注站点头部 -->
+      <div class="favorites-panel-header">
+        <div class="favorites-panel-title">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+          </svg>
+          我的关注站点
+        </div>
+      </div>
+      <div class="favorites-list" id="favoritesList">
+        <!-- 由 JS 动态渲染 -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 时刻表弹窗 -->
+  <div class="modal-overlay" id="modalOverlay"></div>
+  <div class="modal" id="timetableModal">
+    <div class="modal-header">
+      <div class="modal-close" id="modalClose">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </div>
+      <div class="modal-title">时刻表</div>
+    </div>
+    <div class="modal-content">
+      <div class="modal-week-selector">
+        <div class="modal-week-options">
+          <div class="modal-week-option active" data-value="weekday">周一至周五</div>
+          <div class="modal-week-option" data-value="saturday">周六</div>
+          <div class="modal-week-option" data-value="sunday">周日</div>
+        </div>
+      </div>
+      <div class="modal-schedule-body">
+      <div class="time-section">
+        <div class="time-section-title">早高峰 6:00 - 10:00</div>
+        <div class="time-grid">
+          <span class="time-tag">07:30</span>
+          <span class="time-tag">08:00</span>
+          <span class="time-tag">08:30</span>
+          <span class="time-tag">09:00</span>
+          <span class="time-tag">09:30</span>
+        </div>
+      </div>
+      <div class="time-section">
+        <div class="time-section-title">10:00 - 16:00</div>
+        <div class="time-grid">
+          <span class="time-tag">10:00</span>
+          <span class="time-tag">10:30</span>
+          <span class="time-tag">11:00</span>
+          <span class="time-tag">11:30</span>
+          <span class="time-tag">12:00</span>
+          <span class="time-tag">12:30</span>
+          <span class="time-tag">13:00</span>
+          <span class="time-tag">13:30</span>
+          <span class="time-tag">14:00</span>
+          <span class="time-tag">14:30</span>
+          <span class="time-tag">15:00</span>
+          <span class="time-tag">15:30</span>
+        </div>
+      </div>
+      <div class="time-section">
+        <div class="time-section-title">晚高峰 16:00 - 20:00</div>
+        <div class="time-grid">
+          <span class="time-tag">16:00</span>
+          <span class="time-tag">16:30</span>
+          <span class="time-tag">17:00</span>
+          <span class="time-tag">17:30</span>
+          <span class="time-tag">18:00</span>
+          <span class="time-tag">18:30</span>
+          <span class="time-tag">19:00</span>
+          <span class="time-tag">19:30</span>
+        </div>
+      </div>
+      <div class="time-section">
+        <div class="time-section-title">20:00 - 24:00</div>
+        <div class="time-grid">
+          <span class="time-tag">20:00</span>
+          <span class="time-tag">20:30</span>
+          <span class="time-tag">21:00</span>
+        </div>
+      </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 获取路由参数中的 lineName
+    const urlParams = new URLSearchParams(window.location.search);
+    const lineName = urlParams.get('lineName');
+
+    // 设置路线名称
+    const routeTitleEl = document.querySelector('.route-title');
+    if (lineName) {
+      routeTitleEl.textContent = lineName;
+    } else {
+      routeTitleEl.textContent = 'xxx号线';
+    }
+
+    // 返回按钮
+    document.querySelector('.back-btn').addEventListener('click', function () {
+      history.back();
+    });
+
+    // 收藏面板 DOM
+    const favoritesPanel = document.getElementById('favoritesPanel');
+    const favoritesList = document.getElementById('favoritesList');
+
+    // 时刻表弹窗
+    const modalOverlay = document.getElementById('modalOverlay');
+    const timetableModal = document.getElementById('timetableModal');
+    const modalClose = document.getElementById('modalClose');
+    const timetableBtn = document.getElementById('timetableBtn');
+
+    function showModal() {
+      modalOverlay.classList.add('show');
+      timetableModal.classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function hideModal() {
+      modalOverlay.classList.remove('show');
+      timetableModal.classList.remove('show');
+      document.body.style.overflow = '';
+    }
+
+    if (timetableBtn) {
+      timetableBtn.addEventListener('click', showModal);
+    }
+
+    // 关注线路按钮
+    const followLineBtn = document.getElementById('followLineBtn');
+    if (followLineBtn) {
+      followLineBtn.addEventListener('click', function () {
+        const isFollowed = followLineBtn.classList.contains('followed');
+        if (isFollowed) {
+          followLineBtn.classList.remove('followed');
+          followLineBtn.innerHTML = `
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            关注`;
+        } else {
+          followLineBtn.classList.add('followed');
+          followLineBtn.innerHTML = `
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            已关注`;
+        }
+      });
+    }
+
+    modalClose.addEventListener('click', hideModal);
+    modalOverlay.addEventListener('click', hideModal);
+
+    // 时刻表弹窗 - 星期选择器
+    (function initModalWeekSelector() {
+      const options = document.querySelectorAll('.modal-week-option');
+      options.forEach(option => {
+        option.addEventListener('click', function () {
+          options.forEach(opt => opt.classList.remove('active'));
+          this.classList.add('active');
+          const dayType = this.dataset.value;
+          const body = document.querySelector('.modal-schedule-body');
+          if (dayType === 'saturday') {
+            body.style.display = 'none';
+            let msg = document.querySelector('.modal-no-schedule');
+            if (!msg) {
+              msg = document.createElement('div');
+              msg.className = 'modal-no-schedule';
+              msg.textContent = '暂无班车时间';
+              body.parentElement.appendChild(msg);
+            }
+            msg.style.display = '';
+          } else {
+            body.style.display = '';
+            const msg = document.querySelector('.modal-no-schedule');
+            if (msg) msg.style.display = 'none';
+          }
+        });
+      });
+    })();
+
+    // 公交站点示意图
+    const routeSvg = document.getElementById('routeSvg');
+    const routePath = document.getElementById('routePath');
+
+    const stations = [
+      { name: '278路口', type: 'start' },
+      { name: '南北大道', type: 'normal' },
+      { name: '翰林楼', type: 'normal', followed: true },
+      { name: '综合楼', type: 'normal' },
+      { name: '52号院南门', type: 'current' },
+      { name: '行政楼', type: 'normal' },
+      { name: '二号门', type: 'normal' },
+      { name: '活动中心', type: 'normal', followed: true },
+      { name: '北门', type: 'normal' },
+      { name: '108教学楼', type: 'end' }
+    ];
+
+    // 蛇形布局：每行 4 个站，左→右排满后右→左折回
+    // 行高分配：3 行，Y = [20, 50, 80]
+    // 每行 X 分布：4 列，X 锚点 = [12, 37, 62, 87]
+    const snakeCols = 4;
+    const snakeRowY = [20, 50, 80];
+    const snakeColX = [12, 37, 62, 87];
+    const stationPositionsCurve = stations.map((_, i) => {
+      const row = Math.floor(i / snakeCols);
+      const col = i % snakeCols;
+      // 奇数行从右到左
+      const x = row % 2 === 0 ? snakeColX[col] : snakeColX[snakeCols - 1 - col];
+      const y = snakeRowY[row] !== undefined ? snakeRowY[row] : snakeRowY[snakeRowY.length - 1];
+      return { x, y };
+    });
+
+    let stationPositions = stationPositionsCurve.slice();
+
+    let selectedIndex = -1;
+
+    function getStarPath(cx, cy, outerR, innerR) {
+      const points = [];
+      for (let i = 0; i < 10; i++) {
+        const r = i % 2 === 0 ? outerR : innerR;
+        const angle = (Math.PI / 2 * 3) + (i * Math.PI / 5);
+        points.push(`${cx + r * Math.cos(angle)},${cy + r * Math.sin(angle)}`);
+      }
+      return points.join(' ');
+    }
+
+    function createStations() {
+      // 清除现有站点
+      routeSvg.querySelectorAll('.station-group').forEach(el => el.remove());
+
+      stations.forEach((station, i) => {
+        const pos = stationPositions[i];
+        const isSelected = i === selectedIndex;
+
+        const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        group.setAttribute('class', `station-group ${station.type === 'start' ? 'start' : ''} ${station.type === 'end' ? 'end' : ''} ${station.followed ? 'followed' : ''} ${isSelected ? 'selected' : ''}`);
+        group.setAttribute('transform', `translate(${pos.x}, ${pos.y})`);
+        group.dataset.index = i;
+
+        if (station.type === 'start') {
+          const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          circle.setAttribute('class', 'station-circle');
+          circle.setAttribute('r', '6');
+          group.appendChild(circle);
+
+          const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          text.setAttribute('class', 'station-text');
+          text.textContent = '起';
+          group.appendChild(text);
+        } else if (station.type === 'end') {
+          const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          circle.setAttribute('class', 'station-circle');
+          circle.setAttribute('r', '6');
+          group.appendChild(circle);
+
+          const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          text.setAttribute('class', 'station-text');
+          text.textContent = '终';
+          group.appendChild(text);
+        } else if (station.followed) {
+          const star = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+          star.setAttribute('class', 'station-star');
+          star.setAttribute('points', getStarPath(0, 0, isSelected ? 5 : 4, isSelected ? 2 : 1.5));
+          group.appendChild(star);
+        } else {
+          const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          circle.setAttribute('class', 'station-circle');
+          circle.setAttribute('r', isSelected ? '4' : '3');
+          group.appendChild(circle);
+        }
+
+        // 站点名称
+        const name = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        name.setAttribute('class', 'station-name');
+        name.setAttribute('y', station.followed ? '8' : '7');
+        name.textContent = station.name;
+        group.appendChild(name);
+
+        group.addEventListener('click', () => {
+          selectStation(i);
+        });
+        routeSvg.appendChild(group);
+      });
+
+      drawPath();
+      createTimeLabels();
+    }
+
+    function drawPath() {
+      const n = stationPositions.length;
+      // 蛇形图：行内直线，行间用贝塞尔曲线平滑连接
+      let pathD = `M ${stationPositions[0].x} ${stationPositions[0].y}`;
+      for (let i = 1; i < n; i++) {
+        const prev = stationPositions[i - 1];
+        const cur = stationPositions[i];
+        const prevRow = Math.floor((i - 1) / snakeCols);
+        const curRow = Math.floor(i / snakeCols);
+
+        if (prevRow === curRow) {
+          // 同行：直线
+          pathD += ` L ${cur.x} ${cur.y}`;
+        } else {
+          // 跨行转折：三次贝塞尔曲线，控制点让路径向下弯曲
+          const midY = (prev.y + cur.y) / 2;
+          pathD += ` C ${prev.x} ${midY}, ${cur.x} ${midY}, ${cur.x} ${cur.y}`;
+        }
+      }
+      routePath.setAttribute('d', pathD);
+    }
+
+    function selectStation(index) {
+      // 如果点击已选中的站点，则取消选中
+      if (selectedIndex === index) {
+        selectedIndex = -1;
+        routeSvg.querySelectorAll('.station-group').forEach((el, i) => {
+          el.classList.remove('selected');
+          const circle = el.querySelector('.station-circle');
+          const star = el.querySelector('.station-star');
+          if (circle) circle.setAttribute('r', stations[i].type === 'start' || stations[i].type === 'end' ? '6' : '3');
+          if (star) star.setAttribute('points', getStarPath(0, 0, 4, 1.5));
+        });
+        // 取消选中后，重新渲染（无选中站点）
+        renderFavoritesPanel(-1);
+        return;
+      }
+
+      selectedIndex = index;
+
+      routeSvg.querySelectorAll('.station-group').forEach((el, i) => {
+        el.classList.toggle('selected', i === index);
+        const circle = el.querySelector('.station-circle');
+        const star = el.querySelector('.station-star');
+        if (circle) {
+          if (stations[i].type === 'start' || stations[i].type === 'end') {
+            // 起终点不变
+          } else if (!stations[i].followed) {
+            circle.setAttribute('r', i === index ? '4' : '3');
+          }
+        }
+        if (star) {
+          star.setAttribute('points', getStarPath(0, 0, i === index ? 5 : 4, i === index ? 2 : 1.5));
+        }
+      });
+
+      // 重新渲染收藏面板（带选中站点）
+      renderFavoritesPanel(selectedIndex);
+    }
+
+    // ===== 公交车图标点击高亮 + 时间显示（需在 createStations 之前定义）=====
+    let highlightedBus = null; // 当前高亮的公交车图标
+
+    // busIcon1（第一个）的时间：从行政楼（索引5）开始
+    const stationETATimes1 = [
+      null,    // 0: 278路口（不显示）
+      null,    // 1: 南北大道（不显示）
+      '预计2分钟', // 2: 翰林楼
+      '预计5分钟', // 3: 综合楼
+      '预计8分钟', // 4: 52号院南门
+      '预计12分钟',// 5: 行政楼
+      '预计16分钟',// 6: 二号门
+      '预计20分钟',// 7: 活动中心
+      '预计25分钟',// 8: 北门
+      '预计30分钟' // 9: 108教学楼（终）
+    ];
+
+    // busIcon2（第二个）的时间：从翰林楼（索引2）开始
+    const stationETATimes2 = [
+      null,    // 0: 278路口（不显示）
+      null,    // 1: 南北大道（不显示）
+      null,    // 2: 翰林楼（不显示）
+      null,    // 3: 综合楼（不显示）
+      null,    // 4: 52号院南门（不显示）
+      '预计2分钟', // 5: 行政楼
+      '预计6分钟', // 6: 二号门
+      '预计10分钟',// 7: 活动中心
+      '预计15分钟',// 8: 北门
+      '预计20分钟' // 9: 108教学楼（终）
+    ];
+
+    // 为公交车图标添加时间标签
+    function createTimeLabels() {
+      // 移除已有的时间标签
+      routeSvg.querySelectorAll('.time-label').forEach(el => el.remove());
+
+      stations.forEach((station, i) => {
+        const pos = stationPositions[i];
+        // busIcon1 的时间（从行政楼开始）
+        const eta1 = stationETATimes1[i];
+        if (eta1) {
+          const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          text.setAttribute('class', 'time-label bus1-time');
+          text.setAttribute('x', pos.x);
+          text.setAttribute('y', pos.y - 6);
+          text.textContent = eta1;
+          routeSvg.appendChild(text);
+        }
+        // busIcon2 的时间（从翰林楼开始）
+        const eta2 = stationETATimes2[i];
+        if (eta2) {
+          const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          text.setAttribute('class', 'time-label bus2-time');
+          text.setAttribute('x', pos.x);
+          text.setAttribute('y', pos.y - 6);
+          text.textContent = eta2;
+          routeSvg.appendChild(text);
+        }
+      });
+    }
+
+    function toggleTimeLabels(show, busId) {
+      // 根据指定的公交车ID显示对应的时间标签
+      if (show && busId) {
+        routeSvg.querySelectorAll('.time-label').forEach(el => {
+          el.classList.toggle('visible', el.classList.contains(busId + '-time'));
+        });
+      } else {
+        routeSvg.querySelectorAll('.time-label').forEach(el => {
+          el.classList.remove('visible');
+        });
+      }
+    }
+
+    function highlightBusIcon(busIcon, highlight) {
+      if (highlight) {
+        busIcon.classList.add('highlighted');
+      } else {
+        busIcon.classList.remove('highlighted');
+      }
+    }
+
+    createStations();
+
+    window.addEventListener('resize', function () {
+      createStations();
+    });
+
+    // 绑定公交车图标点击事件
+    (function initBusIconClick() {
+      const busIcon1 = document.getElementById('busIcon1');
+      const busIcon2 = document.getElementById('busIcon2');
+
+      createTimeLabels();
+
+      if (busIcon1) {
+        busIcon1.style.display = 'block';
+        busIcon1.setAttribute('transform', `translate(${(stationPositions[1].x + stationPositions[2].x) / 2}, ${(stationPositions[1].y + stationPositions[2].y) / 2})`);
+        busIcon1.addEventListener('click', function (e) {
+          e.stopPropagation();
+          if (highlightedBus === busIcon1) {
+            // 取消高亮
+            highlightBusIcon(busIcon1, false);
+            highlightBusIcon(busIcon2, false);
+            toggleTimeLabels(false);
+            highlightedBus = null;
+          } else {
+            // 高亮并显示时间
+            highlightedBus = busIcon1;
+            highlightBusIcon(busIcon1, true);
+            highlightBusIcon(busIcon2, false);
+            toggleTimeLabels(true, 'bus1');
+          }
+        });
+      }
+
+      if (busIcon2) {
+        busIcon2.style.display = 'block';
+        busIcon2.setAttribute('transform', `translate(${(stationPositions[4].x + stationPositions[5].x) / 2}, ${(stationPositions[4].y + stationPositions[5].y) / 2})`);
+        busIcon2.addEventListener('click', function (e) {
+          e.stopPropagation();
+          if (highlightedBus === busIcon2) {
+            // 取消高亮
+            highlightBusIcon(busIcon2, false);
+            highlightBusIcon(busIcon1, false);
+            toggleTimeLabels(false);
+            highlightedBus = null;
+          } else {
+            // 高亮并显示时间
+            highlightedBus = busIcon2;
+            highlightBusIcon(busIcon2, true);
+            highlightBusIcon(busIcon1, false);
+            toggleTimeLabels(true, 'bus2');
+          }
+        });
+      }
+    })();
+
+    // ===== 关注站点汇总面板 =====
+
+    // 关注站点的详细数据（包含到站时间、站数、距离、发车时间）
+    const favoriteStationsData = [
+      {
+        name: '翰林楼',
+        stationIndex: 2,
+        buses: [
+          { arrivalTime: '预计3分钟', stops: 2, distance: '0.8km', departTime: '08:32' },
+          { arrivalTime: '预计21分钟', stops: 6, distance: '2.4km', departTime: '08:50' }
+        ]
+      },
+      {
+        name: '活动中心',
+        stationIndex: 7,
+        buses: [
+          { arrivalTime: '预计2分钟', stops: 1, distance: '0.5km', departTime: '08:42' },
+          { arrivalTime: '预计18分钟', stops: 5, distance: '2.0km', departTime: '08:58' }
+        ]
+      }
+    ];
+
+    // 渲染关注站点面板（可带选中站点）
+    function renderFavoritesPanel(selectedIdx) {
+      // 先清除上一次可能注入的选中站点卡片
+      const prevCard = document.getElementById('selectedStationCard');
+      if (prevCard) prevCard.remove();
+
+      // 生成单个站点卡片的 HTML（不含标题区）
+      // cardType: 'selected' | 'favorite'
+      function buildCardHTML(station, cardType) {
+        const busesHTML = station.buses.length === 0
+          ? `<div class="fav-no-bus">暂无已发车车辆</div>`
+          : station.buses.map((bus, idx) => `
+            <div class="fav-bus-item${idx === 0 ? ' first' : ''}">
+              <div class="fav-bus-cell">
+                <span class="fav-bus-cell-label">到站时间</span>
+                <span class="fav-bus-cell-value">${bus.arrivalTime}</span>
+              </div>
+              <div class="fav-bus-cell">
+                <span class="fav-bus-cell-label">站数</span>
+                <span class="fav-bus-cell-value">${bus.stops} 站</span>
+              </div>
+              <div class="fav-bus-cell">
+                <span class="fav-bus-cell-label">发车时间</span>
+                <span class="fav-bus-cell-value">${bus.departTime}</span>
+              </div>
+            </div>
+          `).join('');
+
+        const isSelected = cardType === 'selected';
+        const isFavorite = cardType === 'favorite';
+        // 关注状态：收藏卡片 或 站点本身 followed=true（选中翰林楼/活动中心时）
+        const isFollowed = isFavorite || station.followed;
+
+        const selectedCardClass = isSelected ? 'selected-card' : '';
+        const followBtnClass = isFollowed ? 'followed' : '';
+        const followBtnText = isFollowed ? '已关注' : '关注';
+        const followBtnIcon = isFollowed
+          ? `<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>`
+          : `<svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
+
+        // 标题区：关注站点显示黄色星星+名称，选中站点显示「当前」徽标+名称
+        let headerHTML = '';
+        if (isFavorite) {
+          headerHTML = `<div class="fav-station-name">
+               <svg class="fav-star-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                 <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+               </svg>
+               ${station.name}
+             </div>`;
+        } else if (isSelected) {
+          headerHTML = `<div class="fav-station-name fav-station-name--current">
+               <span class="current-icon">当前</span>
+               ${station.name}
+             </div>`;
+        }
+
+        return `
+          <div class="fav-station-card ${selectedCardClass}">
+            <div class="fav-station-top">
+              ${headerHTML}
+              <button class="fav-follow-btn ${followBtnClass}" onclick="toggleFavFollow(this)">
+                ${followBtnIcon}
+                ${followBtnText}
+              </button>
+            </div>
+            <div class="fav-buses-row">
+              ${busesHTML}
+            </div>
+          </div>
+        `;
+      }
+
+      // 选中的站点数据（从 favoriteStationsData 查找，没有则用模拟数据）
+      if (selectedIdx >= 0) {
+        const selStation = stations[selectedIdx];
+        const favData = favoriteStationsData.find(f => f.name === selStation.name);
+        const stationData = favData || {
+          name: selStation.name,
+          buses: [
+            { arrivalTime: '预计1分钟', stops: 0, distance: '0.2km', departTime: '08:34' },
+            { arrivalTime: '预计9分钟', stops: 3, distance: '1.1km', departTime: '08:42' },
+            { arrivalTime: '预计22分钟', stops: 7, distance: '2.8km', departTime: '08:55' }
+          ]
+        };
+        // 将选中卡片注入到 favorites-panel-header 上方（panel 顶部）
+        const panelHeader = document.querySelector('.favorites-panel-header');
+        const selectedCardHTML = `<div id="selectedStationCard">${buildCardHTML(stationData, 'selected')}</div>`;
+        panelHeader.insertAdjacentHTML('beforebegin', selectedCardHTML);
+      }
+
+      // 关注站点（排除已在选中位置显示的）
+      const followedStations = favoriteStationsData;
+      if (followedStations.length === 0) {
+        favoritesList.innerHTML = `
+          <div class="fav-empty">
+            <div>暂无关注站点</div>
+            <div style="font-size:12px;margin-top:4px;">点击站点旁的星形标记即可收藏</div>
+          </div>
+        `;
+        return;
+      }
+
+      const favoriteCardsHTML = followedStations
+        .filter(s => !(selectedIdx >= 0 && stations[selectedIdx].name === s.name))
+        .map(station => buildCardHTML(station, 'favorite'))
+        .join('');
+
+      favoritesList.innerHTML = favoriteCardsHTML;
+    }
+
+    // 初始渲染收藏面板
+    renderFavoritesPanel();
+
+    // 收藏面板中的关注按钮切换
+    function toggleFavFollow(btn) {
+      const isFollowed = btn.classList.contains('followed');
+      if (isFollowed) {
+        btn.classList.remove('followed');
+        btn.innerHTML = `<svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>关注`;
+      } else {
+        btn.classList.add('followed');
+        btn.innerHTML = `<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>已关注`;
+      }
+    }
+  </script>
+</body>
+
+</html>
