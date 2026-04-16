@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>站点详情</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #f5f5f5;
+    }
+
+    .navbar {
+      display: flex;
+      align-items: center;
+      height: 44px;
+      background-color: #009459;
+      padding: 0 16px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+    }
+
+    .back-btn {
+      width: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+    }
+
+    .back-icon {
+      width: 24px;
+      height: 24px;
+      color: #ffffff;
+      cursor: pointer;
+    }
+
+    .navbar-title {
+      flex: 1;
+      text-align: center;
+      font-size: 20px;
+      font-weight: bold;
+      color: #ffffff;
+      margin-right: 40px;
+    }
+
+    .station-detail {
+      padding-top: 44px;
+    }
+
+    .header {
+      background-color: #009459;
+      color: #fff;
+      padding: 16px;
+    }
+
+    .station-main {
+      display: flex;
+      align-items: center;
+    }
+
+    .station-icon {
+      width: 40px;
+      height: 40px;
+      background-color: rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 12px;
+    }
+
+    .station-icon svg {
+      width: 24px;
+      height: 24px;
+      fill: #fff;
+    }
+
+    .station-name {
+      font-size: 22px;
+      font-weight: bold;
+      color: #fff;
+    }
+
+    .reverse-station-btn {
+      margin-left: auto;
+      width: auto;
+      padding: 0 16px;
+      height: 32px;
+      background-color: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 16px;
+      color: #fff;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .reverse-station-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .route-list-section {
+      padding: 12px 16px;
+    }
+
+    .route-card {
+      background-color: #fff;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+
+    .route-header {
+      display: flex;
+      align-items: center;
+      padding: 10px 14px;
+      cursor: pointer;
+    }
+
+    .route-header-left {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .route-icon {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #009459;
+      border-radius: 6px;
+    }
+
+    .route-icon svg {
+      width: 22px;
+      height: 22px;
+    }
+
+    .route-info {
+      flex: 1;
+    }
+
+    .route-name {
+      font-size: 17px;
+      font-weight: bold;
+      color: #333;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .route-direction {
+      font-size: 15px;
+      margin-top: 2px;
+    }
+
+    .route-toggle {
+      margin-left: 8px;
+      width: 32px;
+      height: 32px;
+      color: #999;
+      transition: transform 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .route-card.expanded .route-toggle {
+      transform: rotate(180deg);
+    }
+
+    .route-expanded {
+      display: none;
+      padding: 0 14px 14px;
+    }
+
+    .route-card.expanded .route-expanded {
+      display: block;
+    }
+
+    .route-expanded-info {
+      background-color: #f5f5f5;
+      border-radius: 8px;
+      padding: 8px 12px;
+      margin-bottom: 10px;
+    }
+
+    .week-selector {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 14px;
+      background-color: #fff;
+    }
+
+    .week-selector-options {
+      display: flex;
+      gap: 6px;
+      flex: 1;
+    }
+
+    .week-option {
+      flex: 1;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      color: #666;
+      background-color: #f5f5f5;
+      border-radius: 15px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+    }
+
+    .week-option.active {
+      color: #009459;
+      background-color: #e8f5e9;
+      border-color: #009459;
+    }
+
+    .route-expanded-row {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .route-expanded-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .route-expanded-label {
+      font-size: 16px;
+      color: #666;
+      width: 40px;
+    }
+
+    .route-expanded-value {
+      font-size: 16px;
+      color: #333;
+      flex: 1;
+    }
+
+    .dir-arrow {
+      color: #666;
+      font-weight: normal;
+    }
+
+    .route-action-btns {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .action-btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      height: 36px;
+      background-color: #fff;
+      border: 1px solid #009459;
+      border-radius: 18px;
+      color: #009459;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .action-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .action-btn.primary {
+      background-color: #009459;
+      color: #fff;
+    }
+
+    .action-btn.primary svg {
+      stroke: #fff;
+    }
+
+    .time-section {
+      margin-bottom: 16px;
+    }
+
+    .time-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .time-section-title {
+      font-size: 16px;
+      color: #666;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+
+    .time-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .time-tag {
+      font-size: 16px;
+      color: #333;
+      background-color: #f5f5f5;
+      padding: 4px 12px;
+      border-radius: 14px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="station-detail">
+    <!-- 顶部导航栏 -->
+    <div class="navbar">
+      <div class="back-btn">
+        <svg class="back-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="15 18 9 12 15 6" />
+        </svg>
+      </div>
+      <span class="navbar-title">站点详情</span>
+    </div>
+
+    <!-- 站点信息 -->
+    <div class="header">
+      <div class="station-main">
+        <div class="station-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+            <circle cx="12" cy="10" r="3" fill="#009459" />
+          </svg>
+        </div>
+        <div class="station-name">52号院南门</div>
+
+        <button class="reverse-station-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="17 1 21 5 17 9" />
+            <path d="M3 11V9a4 4 0 0 1 4-4h14" />
+            <polyline points="7 23 3 19 7 15" />
+            <path d="M21 13v2a4 4 0 0 1-4 4H3" />
+          </svg>
+          反向车站
+        </button>
+      </div>
+    </div>
+
+    <!-- 路线列表 -->
+    <div class="route-list-section"></div>
+  </div>
+
+  <script>
+    // 获取路由参数中的 stationName
+    const urlParams = new URLSearchParams(window.location.search);
+    const stationName = urlParams.get('stationName');
+
+    // 设置站点名称
+    const stationNameEl = document.querySelector('.station-name');
+    if (stationName) {
+      stationNameEl.textContent = stationName;
+    } else {
+      stationNameEl.textContent = 'xxx站';
+    }
+
+    // 返回按钮
+    document.querySelector('.back-btn').addEventListener('click', function () {
+      history.back();
+    });
+
+    // 展开/收起路线详情（同时只能展开一个）
+    function toggleRoute(header) {
+      const routeCard = header.parentElement;
+      const isExpanding = !routeCard.classList.contains('expanded');
+
+      // 关闭所有卡片
+      document.querySelectorAll('.route-card.expanded').forEach(card => {
+        card.classList.remove('expanded');
+      });
+
+      // 如果是展开操作，则打开当前卡片
+      if (isExpanding) {
+        routeCard.classList.add('expanded');
+        // 初始化周选择器
+        setTimeout(() => {
+          initWeekSelector(routeCard);
+        }, 0);
+      }
+    }
+
+    // 初始化周选择器
+    function initWeekSelector(routeCard) {
+      const weekOptions = routeCard.querySelectorAll('.week-option');
+      weekOptions.forEach(option => {
+        option.addEventListener('click', function (e) {
+          e.stopPropagation();
+          weekOptions.forEach(opt => opt.classList.remove('active'));
+          this.classList.add('active');
+          const selectedDay = this.dataset.value;
+          filterScheduleByDay(routeCard, selectedDay);
+        });
+      });
+    }
+
+    // 根据选择的日期筛选时刻表
+    function filterScheduleByDay(routeCard, dayType) {
+      const timeSections = routeCard.querySelectorAll('.time-section');
+      const routeInfo = routeCard.querySelector('.route-expanded-info');
+      if (dayType === 'saturday') {
+        // 周六：显示暂无班车时间提示
+        timeSections.forEach(section => {
+          section.style.display = 'none';
+        });
+        if (routeInfo) routeInfo.style.display = 'none';
+        const existingMsg = routeCard.querySelector('.no-schedule-msg');
+        if (existingMsg) existingMsg.remove();
+        const msg = document.createElement('div');
+        msg.className = 'no-schedule-msg';
+        msg.style.cssText = 'text-align: center; padding: 20px; color: #999; font-size: 14px;';
+        msg.textContent = '暂无班车时间';
+        routeCard.querySelector('.route-expanded').appendChild(msg);
+      } else {
+        // 周一至周五、周日：正常显示
+        timeSections.forEach(section => {
+          section.style.display = '';
+        });
+        if (routeInfo) routeInfo.style.display = '';
+        const existingMsg = routeCard.querySelector('.no-schedule-msg');
+        if (existingMsg) existingMsg.remove();
+      }
+    }
+
+    // 通勤路线数据（随机取5条）
+    const commuteData = [
+      {
+        type: 'commute', name: '1号线', start: '中心站', end: '终点站', firstBus: '06:15', lastBus: '22:30',
+        schedule: {
+          '早高峰 6:00 - 10:00': ['06:15', '06:45', '07:15', '07:45', '08:15', '08:45', '09:15'],
+          '10:00 - 16:00': ['10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30'],
+          '晚高峰 16:00 - 20:00': ['16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30'],
+          '20:00 - 24:00': ['20:00', '20:30', '21:00', '21:30', '22:00', '22:30']
+        }
+      },
+      {
+        type: 'commute', name: '2号线', start: '南区', end: '北区', firstBus: '06:30', lastBus: '21:30',
+        schedule: {
+          '早高峰 6:00 - 10:00': ['06:30', '07:00', '07:30', '08:00', '08:30', '09:00', '09:30'],
+          '10:00 - 16:00': ['10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30'],
+          '晚高峰 16:00 - 20:00': ['16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30'],
+          '20:00 - 24:00': ['20:00', '20:30', '21:00', '21:30']
+        }
+      },
+      {
+        type: 'commute', name: '3号线', start: '南门', end: '北门', firstBus: '06:30', lastBus: '22:00',
+        schedule: {
+          '早高峰 6:00 - 10:00': ['06:30', '07:00', '07:30', '08:00', '08:30', '09:00', '09:30'],
+          '10:00 - 16:00': ['10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30'],
+          '晚高峰 16:00 - 20:00': ['16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30'],
+          '20:00 - 24:00': ['20:00', '20:30', '21:00', '21:30', '22:00']
+        }
+      },
+      {
+        type: 'commute', name: '5号线', start: '行政楼', end: '图书馆', firstBus: '06:45', lastBus: '21:00',
+        schedule: {
+          '早高峰 6:00 - 10:00': ['06:45', '07:15', '07:45', '08:15', '08:45', '09:15', '09:45'],
+          '10:00 - 16:00': ['10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30'],
+          '晚高峰 16:00 - 20:00': ['16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30'],
+          '20:00 - 24:00': ['20:00', '20:30', '21:00']
+        }
+      },
+      {
+        type: 'commute', name: '8号线（教学专线）', start: '停车场', end: '实验楼', firstBus: '07:00', lastBus: '19:30',
+        schedule: {
+          '早高峰 6:00 - 10:00': ['07:00', '07:30', '08:00', '08:30', '09:00', '09:30'],
+          '10:00 - 16:00': ['10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30'],
+          '晚高峰 16:00 - 20:00': ['16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30'],
+          '20:00 - 24:00': ['20:00']
+        }
+      }
+    ];
+
+    // 渲染通勤线卡片
+    function renderCommuteCard(route) {
+      return `
+        <div class="route-card" data-route="${route.name}">
+          <div class="route-header" onclick="toggleRoute(this)">
+            <div class="route-header-left">
+              <div class="route-icon">
+                <svg t="1776067534354" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5919" width="48" height="48"><path d="M835.5 165.9c-5.9-13.3-13.9-24.9-23.9-35-10-10-21.7-18-34.9-23.9-13.3-5.9-27.6-8.8-42.9-8.8H291.6c-15.3 0-29.6 3-42.9 8.8-13.3 5.9-24.9 13.9-34.9 23.9-10 10-18 21.7-23.9 35-5.9 13.3-8.8 27.6-8.8 42.9V707c0 15.3 0.1 29.6 0.4 42.9 0.3 13.3 1.9 24.9 4.9 34.9 2.9 10 8.3 18 15.9 23.9 7.7 5.9 18.9 8.8 33.6 8.8v54.9c0 15.3 5.5 28.5 16.4 39.4 10.9 10.9 24 16.4 39.4 16.4 15.3 0 28.3-5.5 38.9-16.4 10.6-10.9 15.9-24 15.9-39.4v-54.9H679v54.9c0 15.3 5.3 28.5 15.9 39.4 10.6 10.9 23.6 16.4 38.9 16.4 15.3 0 28.5-5.5 39.4-16.4 10.9-10.9 16.4-24 16.4-39.4v-54.9c15.3 0 26.8-2.9 34.5-8.8 7.7-5.9 13-13.9 15.9-23.9 2.9-10 4.4-21.8 4.4-35.4V208.8c0-15.3-3-29.6-8.9-42.9zM380.9 161c5.3-5.3 11.8-8 19.5-8H625c7.7 0 14.2 2.6 19.5 8 5.3 5.3 8 11.8 8 19.5 0 8.3-2.6 15-8 20.4-5.3 5.3-11.8 8-19.5 8H400.4c-7.7 0-14.2-2.7-19.5-8-5.3-5.3-8-12.1-8-20.4 0.1-7.7 2.7-14.1 8-19.5zM346 703.9c-8 8-17.5 11.9-28.7 11.9-11.8 0-21.5-4-29.2-11.9-7.7-8-11.5-17.6-11.5-28.8s3.8-20.8 11.5-28.8 17.4-11.9 29.2-11.9c11.2 0 20.8 4 28.7 11.9 8 8 11.9 17.5 11.9 28.8s-4 20.8-11.9 28.8z m385.6-1.3c-7.4 7.7-16.4 11.5-27 11.5-11.2 0-20.5-3.8-27.9-11.5-7.4-7.7-11.1-16.8-11.1-27.4 0-10.6 3.7-19.8 11.1-27.4 7.4-7.7 16.7-11.5 27.9-11.5 10.6 0 19.6 3.8 27 11.5 7.4 7.7 11.1 16.8 11.1 27.4 0 10.6-3.7 19.7-11.1 27.4z m57.9-217.7H235.9V263.7h553.7v221.2z" p-id="5920" fill="#ffffff"></path></svg>
+              </div>
+              <div class="route-info">
+                <div class="route-name">${route.name}</div>
+                <div class="route-direction">${route.start} <span class="dir-arrow">开往</span> ${route.end}</div>
+              </div>
+            </div>
+            <svg class="route-toggle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </div>
+          <div class="route-expanded">
+            <div class="route-action-btns">
+              <button class="action-btn primary" onclick="location.href='line.html?lineName=' + encodeURIComponent('${route.name}')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="11" cy="11" r="8" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+                路线详情
+              </button>
+            </div>
+            <div class="week-selector">
+              <div class="week-selector-options">
+                <div class="week-option active" data-value="weekday">周一至周五</div>
+                <div class="week-option" data-value="saturday">周六</div>
+                <div class="week-option" data-value="sunday">周日</div>
+              </div>
+            </div>
+            <div class="route-expanded-info">
+              <div class="route-expanded-row">
+                <span class="route-expanded-label">首班</span>
+                <span class="route-expanded-value">${route.firstBus}</span>
+                <span class="route-expanded-label" style="margin-left: 16px;">末班</span>
+                <span class="route-expanded-value">${route.lastBus}</span>
+              </div>
+            </div>
+            ${Object.entries(route.schedule).map(([title, times]) => `
+              <div class="time-section">
+                <div class="time-section-title">${title}</div>
+                <div class="time-grid">
+                  ${times.map(t => `<span class="time-tag">${t}</span>`).join('')}
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>`;
+    }
+
+    // 渲染路线列表
+    function renderRoutes() {
+      const section = document.querySelector('.route-list-section');
+      section.innerHTML = commuteData.map(route => renderCommuteCard(route)).join('');
+    }
+
+    // 初始渲染
+    renderRoutes();
+  </script>
+</body>
+
+</html>
