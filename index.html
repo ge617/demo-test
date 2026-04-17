@@ -57,13 +57,13 @@
     .search-icon {
       width: 18px;
       height: 18px;
-      color: #999;
+      color: #6b6b6b;
       margin-right: 8px;
     }
 
     .search-placeholder {
       font-size: 17px;
-      color: #999;
+      color: #6b6b6b;
     }
 
     .map-icon {
@@ -77,13 +77,17 @@
     }
 
     .section-title {
-      font-size: 16px;
+      font-size: 18px;
       font-weight: bold;
       color: #333;
       padding: 12px 0;
     }
 
-
+    .section-title span {
+      font-size: 14px;
+      color: #666666;
+      font-weight: normal;
+    }
 
     .route-name {
       display: flex;
@@ -504,6 +508,53 @@
       right: 0;
     }
 
+    .notice-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .notice-item {
+      background-color: #fff;
+      border-radius: 12px;
+      padding: 14px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+      cursor: pointer;
+    }
+
+    .notice-item:active {
+      background-color: #f8f8f8;
+    }
+
+    .notice-title-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .notice-title {
+      font-size: 16px;
+      font-weight: bold;
+      color: #333;
+      line-height: 1.5;
+      flex: 1;
+    }
+
+    .notice-arrow {
+      width: 18px;
+      height: 18px;
+      color: #bbb;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .notice-time {
+      font-size: 13px;
+      color: #999;
+    }
+
     .tab-item {
       flex: 1;
       display: flex;
@@ -549,11 +600,27 @@
       </div>
     </div>
 
-
+    <!-- 通知公告 -->
+    <div class="section" id="notice-section">
+      <div class="section-title">通知公告</div>
+      <div class="notice-list">
+        <div class="notice-item" onclick="location.href='notice-detail.html'">
+          <div class="notice-title-row">
+            <div class="notice-title">关于本周末校内公交发车时间临时调整的通知</div>
+            <svg class="notice-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </div>
+          <div class="notice-time">2026-04-16 09:30</div>
+        </div>
+      </div>
+    </div>
 
     <!-- 关注路线 -->
     <div class="section">
-      <div class="section-title">关注路线</div>
+      <div class="section-title">关注路线
+        <span>车辆到站时间均为预估时间，仅供参考。</span>
+      </div>
 
       <!-- 第一级：公交路线 66号线 -->
       <div class="route-card" onclick="location.href='line.html?lineName=' + encodeURIComponent('66号线')">
@@ -636,21 +703,15 @@
             </div>
           </div>
         </div>
-
       </div>
-    </div>
-
-    <!-- 温馨提示 -->
-    <div
-      style="background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%); margin: 0px 10px; padding: 8px 12px; border-radius: 10px; border-left: 4px solid #ffc107;">
-      <div style="font-size: 14px; color: #856404; line-height: 1.5;">车辆到站时间均为预估时间，仅供参考。</div>
     </div>
 
     <!-- 附近站点 -->
     <div class="section" id="nearby-stations">
       <div class="section-title">附近站点</div>
 
-      <div class="station-card" onclick="location.href='station.html?stationName=' + encodeURIComponent(this.querySelector('.station-name').textContent)">
+      <div class="station-card"
+        onclick="location.href='station.html?stationName=' + encodeURIComponent(this.querySelector('.station-name').textContent)">
         <div class="station-header">
           <div class="station-info">
             <svg class="station-icon" viewBox="0 0 24 24" fill="#009459">
@@ -663,7 +724,8 @@
         </div>
       </div>
 
-      <div class="station-card" onclick="location.href='station.html?stationName=' + encodeURIComponent(this.querySelector('.station-name').textContent)">
+      <div class="station-card"
+        onclick="location.href='station.html?stationName=' + encodeURIComponent(this.querySelector('.station-name').textContent)">
         <div class="station-header">
           <div class="station-info">
             <svg class="station-icon" viewBox="0 0 24 24" fill="#009459">
@@ -676,7 +738,8 @@
         </div>
       </div>
 
-      <div class="station-card" onclick="location.href='station.html?stationName=' + encodeURIComponent(this.querySelector('.station-name').textContent)">
+      <div class="station-card"
+        onclick="location.href='station.html?stationName=' + encodeURIComponent(this.querySelector('.station-name').textContent)">
         <div class="station-header">
           <div class="station-info">
             <svg class="station-icon" viewBox="0 0 24 24" fill="#009459">
@@ -717,14 +780,6 @@
       <span class="tab-text">通知公告</span>
     </div>
   </div>
-
-  <script>
-    // 获取定位
-    navigator.geolocation.getCurrentPosition((position) => {
-      console.log('定位信息');
-      console.log(position);
-    });
-  </script>
 </body>
 
 </html>
