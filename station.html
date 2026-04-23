@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>站点详情</title>
+  <title>班车小程序模型--征求意见版</title>
   <style>
     * {
       margin: 0;
@@ -64,11 +64,13 @@
     }
 
     .station-main {
+      column-gap: 10px;
       display: flex;
       align-items: center;
     }
 
     .station-icon {
+      flex-shrink: 0;
       width: 40px;
       height: 40px;
       background-color: rgba(255, 255, 255, 0.2);
@@ -76,7 +78,6 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-right: 12px;
     }
 
     .station-icon svg {
@@ -92,6 +93,7 @@
     }
 
     .reverse-station-btn {
+      flex-shrink: 0;
       margin-left: auto;
       width: auto;
       padding: 0 16px;
@@ -372,18 +374,26 @@
     // 获取路由参数中的 stationName
     const urlParams = new URLSearchParams(window.location.search);
     const stationName = urlParams.get('stationName');
+    const stationBaseName = stationName || 'xxx站';
+    let currentStationSide = '路北';
+
+    function updateStationName() {
+      stationNameEl.textContent = `${stationBaseName}（${currentStationSide}）`;
+    }
 
     // 设置站点名称
     const stationNameEl = document.querySelector('.station-name');
-    if (stationName) {
-      stationNameEl.textContent = stationName;
-    } else {
-      stationNameEl.textContent = 'xxx站';
-    }
+    updateStationName();
 
     // 返回按钮
     document.querySelector('.back-btn').addEventListener('click', function () {
       history.back();
+    });
+
+    // 反向车站切换
+    document.querySelector('.reverse-station-btn').addEventListener('click', function () {
+      currentStationSide = currentStationSide === '路北' ? '路南' : '路北';
+      updateStationName();
     });
 
     // 展开/收起路线详情（同时只能展开一个）
